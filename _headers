@@ -1,0 +1,15 @@
+# ── Global security headers ──────────────────────────────────
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# ── HTML — short cache so refreshes pick up score updates ─────
+/*.html
+  Cache-Control: public, max-age=300, stale-while-revalidate=60
+
+# ── ICS feed — 1 hour cache; Apple Calendar polls on this TTL ─
+/schedule.ics
+  Content-Type: text/calendar; charset=utf-8
+  Cache-Control: public, max-age=3600, stale-while-revalidate=300
+  Access-Control-Allow-Origin: *
