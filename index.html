@@ -466,6 +466,7 @@ const GROUPS=[
 ];
 
 const ALL_TEAMS=GROUPS.flatMap(g=>g.teams);
+const STATIC_TEAM_BY_ID=ALL_TEAMS.reduce((m,t,i)=>{m[String(i+1)]=t;return m;},{});
 
 const KO={
   r32:[
@@ -537,8 +538,8 @@ const VENUES=[
 ];
 
 // ── LIVE DATA STATE ────────────────────────────────────
-let scoresMap={}, standingsMap={}, oddsMap={};
-let rawGames=[], hasLive=false, loadingData=false;
+let teamById={}, scoresMap={}, standingsMap={}, oddsMap={};
+let rawGames=[], hasLive=false, loadingData=false, liveRefreshTimer=null;
 let favTeam=localStorage.getItem('wc2026_fav')||'';
 
 const hasOdds=()=>ODDS_API_KEY.trim().length>8;
@@ -548,15 +549,72 @@ const oc=n=>n>=0?'opos':'oneg';
 
 function norm(n){
   if(!n) return '';
+  if(typeof n!=='string') return '';
   const M={'Czech Republic':'Czechia','Czechia':'Czechia',
     'Bosnia-Herzegovina':'Bosnia and Herzegovina','Bosnia & Herzegovina':'Bosnia and Herzegovina',
     "Ivory Coast":"Côte d'Ivoire",'Cape Verde':'Cabo Verde','Curacao':'Curaçao',
-    'Turkey':'Türkiye','Congo DR':'DR Congo','Korea Republic':'South Korea',
+    'Curaçao':'Curaçao','Turkey':'Türkiye','Congo DR':'DR Congo','Democratic Republic of the Congo':'DR Congo','Korea Republic':'South Korea',
     'United States':'USA'};
   return M[n]||n;
 }
 function sk(a,b){return norm(a)+'__'+norm(b);}
 function getScore(h,a){return scoresMap[sk(h,a)]||scoresMap[sk(a,h)]||null;}
+
+function cleanVal(v){
+  if(v==null) return null;
+  const s=String(v).trim();
+  if(!s||s.toLowerCase()==='null') return null;
+  return v;
+}
+function apiName(v){
+  if(cleanVal(v)==null) return '';
+  if(typeof v==='string') return norm(v);
+  if(typeof v!=='object') return '';
+  const keys=['name_en','team_name_en','home_team_name_en','away_team_name_en',
+    'name','team_name','full_name','short_name','label','home_team_label','away_team_label'];
+  for(const k of keys){
+    const n=apiName(v[k]);
+    if(n) return n;
+  }
+  return apiName(v.team)||apiName(v.country)||apiName(v.nation);
+}
+function apiId(v){
+  if(cleanVal(v)==null) return '';
+  if(typeof v==='string'||typeof v==='number') return String(v);
+  if(typeof v!=='object') return '';
+  return cleanVal(v.team_id)||cleanVal(v.teamId)||cleanVal(v.id)||cleanVal(v._id)||apiId(v.team);
+}
+function teamFromId(id){
+  const key=String(cleanVal(id)||'');
+  return key?(teamById[key]||STATIC_TEAM_BY_ID[key]||''):'';
+}
+function teamNameFromRow(row,group,index){
+  const fallback=group?.teams?.[index]||'';
+  const n=apiName(row?.team)||apiName(row?.country)||apiName(row?.name)||apiName(row?.team_name)||apiName(row);
+  const id=apiId(row?.team)||apiId(row);
+  return norm(n||teamFromId(id)||fallback);
+}
+function teamNameFromGame(m,side){
+  const pre=side+'_team';
+  const n=apiName(m[pre+'_name_en'])||apiName(m[pre+'_name'])||apiName(m[pre])||
+    apiName(m[side+'Team'])||apiName(m[side])||apiName(m[pre+'_label']);
+  const id=m[pre+'_id']??m[side+'TeamId']??m[side+'_id'];
+  return norm(n||teamFromId(id));
+}
+function gameStatus(m){
+  const raw=String(cleanVal(m.status)??cleanVal(m.time_elapsed)??'').toLowerCase();
+  const done=String(m.finished||'').toLowerCase()==='true'||['ft','finished','completed'].includes(raw);
+  if(done) return {status:'finished',started:true,live:false,minute:null};
+  if(!raw||['false','notstarted','not_started','scheduled','pre','tbd'].includes(raw)){
+    return {status:'scheduled',started:false,live:false,minute:null};
+  }
+  const minute=/^\d+$/.test(raw)?Number(raw):null;
+  return {status:raw==='halftime'?'ht':'live',started:true,live:true,minute};
+}
+function scoreVal(v){
+  const c=cleanVal(v);
+  return c==null?null:c;
+}
 
 function fmtTime(iso){
   if(!iso) return null;
@@ -602,21 +660,35 @@ async function fetchGames(){
   rawGames=Array.isArray(data)?data:(data.data||data.matches||data.games||[]);
   scoresMap={}; hasLive=false;
   rawGames.forEach(m=>{
-    const h=norm(m.home_team||m.homeTeam||m.team1||m.home||'');
-    const a=norm(m.away_team||m.awayTeam||m.team2||m.away||'');
+    const h=teamNameFromGame(m,'home')||norm(m.team1||m.home||'');
+    const a=teamNameFromGame(m,'away')||norm(m.team2||m.away||'');
     if(!h||!a) return;
-    const st=(m.status||'').toLowerCase();
-    if(['live','in_play','1h','2h','ht','et','pen'].includes(st)) hasLive=true;
+    const st=gameStatus(m);
+    if(st.live) hasLive=true;
     const entry={
-      status:st,
-      home_score:m.home_score??m.score_home??m.homeScore??m.score1??null,
-      away_score:m.away_score??m.score_away??m.awayScore??m.score2??null,
-      minute:m.minute||m.elapsed||null
+      status:st.status,
+      home_score:st.started?scoreVal(m.home_score??m.score_home??m.homeScore??m.score1):null,
+      away_score:st.started?scoreVal(m.away_score??m.score_away??m.awayScore??m.score2):null,
+      minute:st.minute||m.minute||m.elapsed||null
     };
     scoresMap[sk(h,a)]=entry; scoresMap[sk(a,h)]=entry;
   });
   const p=document.getElementById('scores-pill');
   if(p){p.style.display='';p.className=hasLive?'pill pill-live':'pill pill-ok';p.textContent=hasLive?'🔴 LIVE':'📡 Scores';}
+}
+
+async function fetchTeams(){
+  const r=await fetch(FREE_API+'/get/teams');
+  if(!r.ok) throw new Error('teams '+r.status);
+  const data=await r.json();
+  const arr=Array.isArray(data)?data:(data.data||data.teams||[]);
+  const next={};
+  arr.forEach(t=>{
+    const id=cleanVal(t.id??t.team_id??t.teamId);
+    const name=apiName(t);
+    if(id&&name) next[String(id)]=name;
+  });
+  teamById=next;
 }
 
 async function fetchGroups(){
@@ -658,16 +730,25 @@ async function fetchOdds(){
 async function refreshAll(){
   if(loadingData) return;
   loadingData=true;
+  if(liveRefreshTimer){clearTimeout(liveRefreshTimer);liveRefreshTimer=null;}
   const btn=document.getElementById('refresh-btn');
   if(btn){btn.disabled=true;btn.textContent='⟳ …';}
   try{
-    await Promise.allSettled([fetchGames(),fetchGroups(),fetchOdds()]);
+    const jobs=[
+      ['Teams',fetchTeams()],
+      ['Scores',fetchGames()],
+      ['Standings',fetchGroups()]
+    ];
+    if(hasOdds()) jobs.push(['Odds',fetchOdds()]);
+    const results=await Promise.allSettled(jobs.map(j=>j[1]));
+    const failed=results.map((r,i)=>r.status==='rejected'?jobs[i][0]:null).filter(Boolean);
     const t=new Date().toLocaleTimeString();
     const lu=document.getElementById('last-upd');
-    if(lu){lu.textContent='Updated '+t;lu.style.display='';}
-    document.getElementById('footer-upd').textContent='Last updated '+t;
+    const msg=failed.length?`Updated ${t} · ${failed.join(', ')} failed`:'Updated '+t;
+    if(lu){lu.textContent=msg;lu.style.display='';lu.style.color=failed.length?'var(--gold)':'';}
+    document.getElementById('footer-upd').textContent=failed.length?`Last refresh had issues at ${t}`:'Last updated '+t;
     render(currentTab);
-    if(hasLive) setTimeout(refreshAll,60000);
+    if(hasLive) liveRefreshTimer=setTimeout(refreshAll,60000);
   }finally{
     loadingData=false;
     if(btn){btn.disabled=false;btn.textContent='⟳ Refresh';}
@@ -800,7 +881,7 @@ function renderGroups(){
       <span class="expand-icon" id="ei-${g.id}">▼</span></div><div class="group-body">`;
     if(live&&live.length){
       [...live].sort((a,b)=>(b.points||b.pts||0)-(a.points||a.pts||0)).forEach((t,i)=>{
-        const n=norm(t.team||t.team_name||t.name||'');
+        const n=teamNameFromRow(t,g,i);
         const pts=t.points??t.pts??'–',w=t.wins??t.won??t.w??'–',d=t.draws??t.drawn??t.d??'–',l=t.losses??t.lost??t.l??'–';
         const gd=t.goal_difference??t.gd??null;
         const gdStr=gd!=null?(gd>0?'+'+gd:gd):'-';
@@ -867,7 +948,7 @@ function renderStandings(){
         <th></th><th>TEAM</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th>
       </tr></thead><tbody>`;
     rows.forEach((t,i)=>{
-      const n=norm(t.team||t.team_name||t.name||'');
+      const n=teamNameFromRow(t,g,i);
       const pts=t.points??t.pts??0,w=t.wins??t.won??t.w??0;
       const d=t.draws??t.drawn??t.d??0,l=t.losses??t.lost??t.l??0;
       const gf=t.goals_for??t.gf??0,ga=t.goals_against??t.ga??0;
