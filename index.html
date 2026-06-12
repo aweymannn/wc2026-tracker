@@ -588,11 +588,41 @@ function teamFromId(id){
   const key=String(cleanVal(id)||'');
   return key?(teamById[key]||STATIC_TEAM_BY_ID[key]||''):'';
 }
-function teamNameFromRow(row,group,index){
-  const fallback=group?.teams?.[index]||'';
+function rowName(row){
   const n=apiName(row?.team)||apiName(row?.country)||apiName(row?.name)||apiName(row?.team_name)||apiName(row);
   const id=apiId(row?.team)||apiId(row);
-  return norm(n||teamFromId(id)||fallback);
+  return norm(n||teamFromId(id));
+}
+// Pull the numeric stats off a live standings row (tolerant of field-name variants).
+function rowStats(row){
+  const r=row||{};
+  const w=Number(r.wins??r.won??r.w??0)||0;
+  const d=Number(r.draws??r.drawn??r.d??0)||0;
+  const l=Number(r.losses??r.lost??r.l??0)||0;
+  const gf=Number(r.goals_for??r.gf??0)||0;
+  const ga=Number(r.goals_against??r.ga??0)||0;
+  const gd=r.goal_difference??r.gd;
+  const p=r.played??r.mp;
+  return {pts:Number(r.points??r.pts??0)||0,w,d,l,gf,ga,
+    gd:gd!=null?Number(gd):gf-ga,
+    p:p!=null?Number(p):w+d+l};
+}
+// Always render the group's 4 known teams; match each to its live row by
+// resolved name or id so a name can never come out blank, and rank by points.
+function groupStandings(g){
+  const live=standingsMap[g.id]||[];
+  const has=live.length>0;
+  const rows=g.teams.map(team=>{
+    const row=has?live.find(r=>{
+      const n=rowName(r);
+      if(n&&n===team) return true;
+      const id=apiId(r?.team)||apiId(r);
+      return !!id&&teamFromId(id)===team;
+    }):null;
+    return {team,hasRow:!!row,...rowStats(row)};
+  });
+  if(has) rows.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+  return {has,rows};
 }
 function teamNameFromGame(m,side){
   const pre=side+'_team';
@@ -653,8 +683,16 @@ function oddsHtml(h,a){
 }
 
 // ── FETCH ──────────────────────────────────────────────
+// Cache-buster: append a unique timestamp + send no-store so every
+// Refresh actually hits the network instead of a cached GET response.
+// NOTE: no custom request headers here — adding e.g. Cache-Control would turn
+// these into non-simple CORS requests and trigger a preflight the free API may
+// not answer. cache:'no-store' + the _t query param defeat caching safely.
+const bust=u=>u+(u.includes('?')?'&':'?')+'_t='+Date.now();
+const noCache={cache:'no-store'};
+
 async function fetchGames(){
-  const r=await fetch(FREE_API+'/get/games');
+  const r=await fetch(bust(FREE_API+'/get/games'),noCache);
   if(!r.ok) throw new Error('games '+r.status);
   const data=await r.json();
   rawGames=Array.isArray(data)?data:(data.data||data.matches||data.games||[]);
@@ -678,7 +716,7 @@ async function fetchGames(){
 }
 
 async function fetchTeams(){
-  const r=await fetch(FREE_API+'/get/teams');
+  const r=await fetch(bust(FREE_API+'/get/teams'),noCache);
   if(!r.ok) throw new Error('teams '+r.status);
   const data=await r.json();
   const arr=Array.isArray(data)?data:(data.data||data.teams||[]);
@@ -692,7 +730,7 @@ async function fetchTeams(){
 }
 
 async function fetchGroups(){
-  const r=await fetch(FREE_API+'/get/groups');
+  const r=await fetch(bust(FREE_API+'/get/groups'),noCache);
   if(!r.ok) throw new Error('groups '+r.status);
   const data=await r.json();
   standingsMap={};
@@ -709,7 +747,7 @@ async function fetchGroups(){
 
 async function fetchOdds(){
   if(!hasOdds()) return;
-  const r=await fetch(`https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds/?apiKey=${ODDS_API_KEY}&regions=us&markets=h2h&oddsFormat=american`);
+  const r=await fetch(`https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds/?apiKey=${ODDS_API_KEY}&regions=us&markets=h2h&oddsFormat=american`,noCache);
   if(!r.ok) return;
   const rem=r.headers.get('x-requests-remaining');
   const data=await r.json();
@@ -875,23 +913,20 @@ function renderGroups(){
   h+=`<p class="lead">Top <strong>2 from each group</strong> + <strong>8 best 3rd-place</strong> teams advance to Round of 32. Tap any group to expand its schedule.</p>`;
   h+='<div class="grid-groups">';
   GROUPS.forEach(g=>{
-    const live=standingsMap[g.id];
+    const {has,rows}=groupStandings(g);
     h+=`<div class="card"><div class="group-hdr" onclick="tog('${g.id}')">
       <span class="group-letter">GROUP ${g.id}</span>
       <span class="expand-icon" id="ei-${g.id}">▼</span></div><div class="group-body">`;
-    if(live&&live.length){
-      [...live].sort((a,b)=>(b.points||b.pts||0)-(a.points||a.pts||0)).forEach((t,i)=>{
-        const n=teamNameFromRow(t,g,i);
-        const pts=t.points??t.pts??'–',w=t.wins??t.won??t.w??'–',d=t.draws??t.drawn??t.d??'–',l=t.losses??t.lost??t.l??'–';
-        const gd=t.goal_difference??t.gd??null;
-        const gdStr=gd!=null?(gd>0?'+'+gd:gd):'-';
-        const gdC=gd>0?'color:#4ade80':gd<0?'color:#f87171':'';
+    if(has){
+      rows.forEach((t,i)=>{
+        const gdStr=t.gd>0?'+'+t.gd:t.gd;
+        const gdC=t.gd>0?'color:#4ade80':t.gd<0?'color:#f87171':'';
         const pdc=i<2?`pd${i+1}`:'pd3';
         h+=`<div class="team-row">
           <div class="pos-dot ${pdc}">${i+1}</div>
-          <div class="tname">${fl(n)}</div>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text);min-width:28px;text-align:right">${pts}</span>
-          <span style="font-size:9px;color:var(--dim);min-width:38px;text-align:center">${w}-${d}-${l}</span>
+          <div class="tname">${fl(t.team)}</div>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--text);min-width:28px;text-align:right">${t.pts}</span>
+          <span style="font-size:9px;color:var(--dim);min-width:38px;text-align:center">${t.w}-${t.d}-${t.l}</span>
           <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;min-width:24px;text-align:right;${gdC}">${gdStr}</span>
           ${i<2?'<span class="r32-pill">R32</span>':''}</div>`;
       });
@@ -937,33 +972,24 @@ function renderStandings(){
     h+=`<div class="alert alert-gold">📊 Standings load automatically — click ⟳ Refresh. No API key needed.</div>`;
   h+='<div class="grid-standings">';
   GROUPS.forEach(g=>{
-    const live=standingsMap[g.id];
-    const rows=live&&live.length
-      ? [...live].sort((a,b)=>(b.points||b.pts||0)-(a.points||a.pts||0))
-      : g.teams.map(t=>({team:t,points:0,wins:0,draws:0,losses:0,gf:0,ga:0,goal_difference:0,played:0}));
+    const {rows}=groupStandings(g);
     h+=`<div class="std-card"><div class="std-grp-hdr">
       <span class="group-letter" style="font-size:20px">GROUP ${g.id}</span>
-      <span style="font-size:10px;color:var(--muted)">${rows.reduce((s,t)=>s+(t.played||0),0)} played</span></div>
+      <span style="font-size:10px;color:var(--muted)">${rows.reduce((s,t)=>s+(t.p||0),0)} played</span></div>
       <table class="std-table"><thead><tr>
         <th></th><th>TEAM</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>PTS</th>
       </tr></thead><tbody>`;
     rows.forEach((t,i)=>{
-      const n=teamNameFromRow(t,g,i);
-      const pts=t.points??t.pts??0,w=t.wins??t.won??t.w??0;
-      const d=t.draws??t.drawn??t.d??0,l=t.losses??t.lost??t.l??0;
-      const gf=t.goals_for??t.gf??0,ga=t.goals_against??t.ga??0;
-      const gd=t.goal_difference??t.gd??(gf-ga);
-      const p=t.played??t.mp??(w+d+l);
       const rc=i===0?'qs1':i===1?'qs2':i===2?'qs3':'';
       const dc=i<2?'qd-adv':i===2?'qd-3rd':'qd-out';
-      const gdStr=gd>0?`+${gd}`:gd;
-      const gdC=gd>0?'color:#4ade80':gd<0?'color:#f87171':'';
+      const gdStr=t.gd>0?`+${t.gd}`:t.gd;
+      const gdC=t.gd>0?'color:#4ade80':t.gd<0?'color:#f87171':'';
       h+=`<tr class="${rc}"><td><span class="qual-dot ${dc}"></span></td>
-        <td><span style="font-size:13px">${FLAGS[n]||''}</span> ${n}</td>
-        <td>${p}</td><td>${w}</td><td>${d}</td><td>${l}</td>
-        <td>${gf}</td><td>${ga}</td>
+        <td><span style="font-size:13px">${FLAGS[t.team]||''}</span> ${t.team}</td>
+        <td>${t.p}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+        <td>${t.gf}</td><td>${t.ga}</td>
         <td style="${gdC};font-weight:700">${gdStr}</td>
-        <td class="std-pts">${pts}</td></tr>`;
+        <td class="std-pts">${t.pts}</td></tr>`;
     });
     h+=`</tbody></table><div class="std-legend">
       <div class="std-leg"><span class="qual-dot qd-adv"></span>Advance to R32</div>
