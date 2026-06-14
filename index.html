@@ -368,100 +368,100 @@ const fl=t=>(FLAGS[t]||'')+(FLAGS[t]?' ':'')+t;
 // ── STATIC DATA ────────────────────────────────────────
 const GROUPS=[
   {id:'A',teams:['Mexico','South Africa','South Korea','Czechia'],matches:[
-    {date:'Jun 11',kickoff:'2026-06-11T20:00:00Z',home:'Mexico',away:'South Africa',venue:'Estadio Azteca',city:'Mexico City, MX'},
-    {date:'Jun 11',kickoff:'2026-06-12T03:00:00Z',home:'South Korea',away:'Czechia',venue:'Estadio Akron',city:'Guadalajara, MX'},
-    {date:'Jun 18',kickoff:'2026-06-19T00:00:00Z',home:'Mexico',away:'South Korea',venue:'Estadio Akron',city:'Guadalajara, MX'},
+    {date:'Jun 11',kickoff:'2026-06-11T19:00:00Z',home:'Mexico',away:'South Africa',venue:'Estadio Azteca',city:'Mexico City, MX'},
+    {date:'Jun 11',kickoff:'2026-06-12T02:00:00Z',home:'South Korea',away:'Czechia',venue:'Estadio Akron',city:'Guadalajara, MX'},
+    {date:'Jun 18',kickoff:'2026-06-19T01:00:00Z',home:'Mexico',away:'South Korea',venue:'Estadio Akron',city:'Guadalajara, MX'},
     {date:'Jun 18',kickoff:'2026-06-18T16:00:00Z',home:'Czechia',away:'South Africa',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
-    {date:'Jun 24',kickoff:null,home:'Czechia',away:'Mexico',venue:'Estadio Azteca',city:'Mexico City, MX'},
-    {date:'Jun 24',kickoff:null,home:'South Africa',away:'South Korea',venue:'Estadio BBVA',city:'Monterrey, MX'},
+    {date:'Jun 24',kickoff:'2026-06-25T01:00:00Z',home:'Czechia',away:'Mexico',venue:'Estadio Azteca',city:'Mexico City, MX'},
+    {date:'Jun 24',kickoff:'2026-06-25T01:00:00Z',home:'South Africa',away:'South Korea',venue:'Estadio BBVA',city:'Monterrey, MX'},
   ]},
   {id:'B',teams:['Canada','Qatar','Switzerland','Bosnia and Herzegovina'],matches:[
     {date:'Jun 12',kickoff:'2026-06-12T19:00:00Z',home:'Canada',away:'Bosnia and Herzegovina',venue:'BMO Field',city:'Toronto, ON'},
-    {date:'Jun 13',kickoff:'2026-06-13T19:00:00Z',home:'Qatar',away:'Switzerland',venue:"Levi's Stadium",city:'San Francisco, CA'},
-    {date:'Jun 18',kickoff:'2026-06-19T01:00:00Z',home:'Canada',away:'Qatar',venue:'BC Place',city:'Vancouver, BC'},
-    {date:'Jun 18',kickoff:'2026-06-18T22:00:00Z',home:'Switzerland',away:'Bosnia and Herzegovina',venue:'SoFi Stadium',city:'Los Angeles, CA'},
-    {date:'Jun 24',kickoff:null,home:'Switzerland',away:'Canada',venue:'BC Place',city:'Vancouver, BC'},
-    {date:'Jun 24',kickoff:null,home:'Bosnia and Herzegovina',away:'Qatar',venue:'Lumen Field',city:'Seattle, WA'},
+    {date:'Jun 13',kickoff:'2026-06-13T19:00:00Z',home:'Qatar',away:'Switzerland',venue:'Levi\'s Stadium',city:'San Francisco, CA'},
+    {date:'Jun 18',kickoff:'2026-06-18T22:00:00Z',home:'Canada',away:'Qatar',venue:'BC Place',city:'Vancouver, BC'},
+    {date:'Jun 18',kickoff:'2026-06-18T19:00:00Z',home:'Switzerland',away:'Bosnia and Herzegovina',venue:'SoFi Stadium',city:'Los Angeles, CA'},
+    {date:'Jun 24',kickoff:'2026-06-24T19:00:00Z',home:'Switzerland',away:'Canada',venue:'BC Place',city:'Vancouver, BC'},
+    {date:'Jun 24',kickoff:'2026-06-24T19:00:00Z',home:'Bosnia and Herzegovina',away:'Qatar',venue:'Lumen Field',city:'Seattle, WA'},
   ]},
   {id:'C',teams:['Brazil','Morocco','Haiti','Scotland'],matches:[
     {date:'Jun 13',kickoff:'2026-06-13T22:00:00Z',home:'Brazil',away:'Morocco',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
     {date:'Jun 13',kickoff:'2026-06-14T01:00:00Z',home:'Haiti',away:'Scotland',venue:'Gillette Stadium',city:'Boston, MA'},
-    {date:'Jun 19',kickoff:'2026-06-19T22:00:00Z',home:'Brazil',away:'Haiti',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
-    {date:'Jun 19',kickoff:'2026-06-20T01:00:00Z',home:'Scotland',away:'Morocco',venue:'Gillette Stadium',city:'Boston, MA'},
-    {date:'Jun 24',kickoff:null,home:'Morocco',away:'Haiti',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
-    {date:'Jun 24',kickoff:null,home:'Scotland',away:'Brazil',venue:'Hard Rock Stadium',city:'Miami, FL'},
+    {date:'Jun 19',kickoff:'2026-06-20T00:30:00Z',home:'Brazil',away:'Haiti',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
+    {date:'Jun 19',kickoff:'2026-06-19T22:00:00Z',home:'Scotland',away:'Morocco',venue:'Gillette Stadium',city:'Boston, MA'},
+    {date:'Jun 24',kickoff:'2026-06-24T22:00:00Z',home:'Morocco',away:'Haiti',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
+    {date:'Jun 24',kickoff:'2026-06-24T22:00:00Z',home:'Scotland',away:'Brazil',venue:'Hard Rock Stadium',city:'Miami, FL'},
   ]},
   {id:'D',teams:['USA','Paraguay','Australia','Türkiye'],matches:[
     {date:'Jun 12',kickoff:'2026-06-13T01:00:00Z',home:'USA',away:'Paraguay',venue:'SoFi Stadium',city:'Los Angeles, CA'},
-    {date:'Jun 13',kickoff:'2026-06-13T16:00:00Z',home:'Australia',away:'Türkiye',venue:'BC Place',city:'Vancouver, BC'},
-    {date:'Jun 19',kickoff:'2026-06-20T01:00:00Z',home:'USA',away:'Australia',venue:'Lumen Field',city:'Seattle, WA'},
-    {date:'Jun 19',kickoff:'2026-06-19T19:00:00Z',home:'Türkiye',away:'Paraguay',venue:"Levi's Stadium",city:'San Francisco, CA'},
-    {date:'Jun 25',kickoff:null,home:'Paraguay',away:'Australia',venue:"Levi's Stadium",city:'San Francisco, CA'},
-    {date:'Jun 25',kickoff:null,home:'Türkiye',away:'USA',venue:'SoFi Stadium',city:'Los Angeles, CA'},
+    {date:'Jun 13',kickoff:'2026-06-14T04:00:00Z',home:'Australia',away:'Türkiye',venue:'BC Place',city:'Vancouver, BC'},
+    {date:'Jun 19',kickoff:'2026-06-19T19:00:00Z',home:'USA',away:'Australia',venue:'Lumen Field',city:'Seattle, WA'},
+    {date:'Jun 19',kickoff:'2026-06-20T03:00:00Z',home:'Türkiye',away:'Paraguay',venue:'Levi\'s Stadium',city:'San Francisco, CA'},
+    {date:'Jun 25',kickoff:'2026-06-26T02:00:00Z',home:'Paraguay',away:'Australia',venue:'Levi\'s Stadium',city:'San Francisco, CA'},
+    {date:'Jun 25',kickoff:'2026-06-26T02:00:00Z',home:'Türkiye',away:'USA',venue:'SoFi Stadium',city:'Los Angeles, CA'},
   ]},
-  {id:'E',teams:['Germany','Curaçao',"Côte d'Ivoire",'Ecuador'],matches:[
-    {date:'Jun 14',kickoff:'2026-06-14T19:00:00Z',home:'Germany',away:'Curaçao',venue:'NRG Stadium',city:'Houston, TX'},
-    {date:'Jun 14',kickoff:'2026-06-14T22:00:00Z',home:"Côte d'Ivoire",away:'Ecuador',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
-    {date:'Jun 20',kickoff:'2026-06-20T22:00:00Z',home:'Germany',away:"Côte d'Ivoire",venue:'BMO Field',city:'Toronto, ON'},
-    {date:'Jun 20',kickoff:'2026-06-21T01:00:00Z',home:'Ecuador',away:'Curaçao',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
-    {date:'Jun 25',kickoff:null,home:'Ecuador',away:'Germany',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
-    {date:'Jun 25',kickoff:null,home:'Curaçao',away:"Côte d'Ivoire",venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
+  {id:'E',teams:['Germany','Curaçao','Côte d\'Ivoire','Ecuador'],matches:[
+    {date:'Jun 14',kickoff:'2026-06-14T17:00:00Z',home:'Germany',away:'Curaçao',venue:'NRG Stadium',city:'Houston, TX'},
+    {date:'Jun 14',kickoff:'2026-06-14T23:00:00Z',home:'Côte d\'Ivoire',away:'Ecuador',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
+    {date:'Jun 20',kickoff:'2026-06-20T20:00:00Z',home:'Germany',away:'Côte d\'Ivoire',venue:'BMO Field',city:'Toronto, ON'},
+    {date:'Jun 20',kickoff:'2026-06-21T00:00:00Z',home:'Ecuador',away:'Curaçao',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
+    {date:'Jun 25',kickoff:'2026-06-25T20:00:00Z',home:'Ecuador',away:'Germany',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
+    {date:'Jun 25',kickoff:'2026-06-25T20:00:00Z',home:'Curaçao',away:'Côte d\'Ivoire',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
   ]},
   {id:'F',teams:['Netherlands','Japan','Tunisia','Sweden'],matches:[
-    {date:'Jun 14',kickoff:'2026-06-14T16:00:00Z',home:'Sweden',away:'Tunisia',venue:'Estadio BBVA',city:'Monterrey, MX'},
-    {date:'Jun 14',kickoff:'2026-06-15T01:00:00Z',home:'Netherlands',away:'Japan',venue:'AT&T Stadium',city:'Arlington, TX'},
-    {date:'Jun 20',kickoff:'2026-06-21T01:00:00Z',home:'Netherlands',away:'Sweden',venue:'NRG Stadium',city:'Houston, TX'},
-    {date:'Jun 20',kickoff:'2026-06-20T19:00:00Z',home:'Tunisia',away:'Japan',venue:'Estadio BBVA',city:'Monterrey, MX'},
-    {date:'Jun 25',kickoff:null,home:'Tunisia',away:'Netherlands',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
-    {date:'Jun 25',kickoff:null,home:'Japan',away:'Sweden',venue:'AT&T Stadium',city:'Arlington, TX'},
+    {date:'Jun 14',kickoff:'2026-06-15T02:00:00Z',home:'Sweden',away:'Tunisia',venue:'Estadio BBVA',city:'Monterrey, MX'},
+    {date:'Jun 14',kickoff:'2026-06-14T20:00:00Z',home:'Netherlands',away:'Japan',venue:'AT&T Stadium',city:'Arlington, TX'},
+    {date:'Jun 20',kickoff:'2026-06-20T17:00:00Z',home:'Netherlands',away:'Sweden',venue:'NRG Stadium',city:'Houston, TX'},
+    {date:'Jun 20',kickoff:'2026-06-21T04:00:00Z',home:'Tunisia',away:'Japan',venue:'Estadio BBVA',city:'Monterrey, MX'},
+    {date:'Jun 25',kickoff:'2026-06-25T23:00:00Z',home:'Tunisia',away:'Netherlands',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
+    {date:'Jun 25',kickoff:'2026-06-25T23:00:00Z',home:'Japan',away:'Sweden',venue:'AT&T Stadium',city:'Arlington, TX'},
   ]},
   {id:'G',teams:['Belgium','Egypt','Iran','New Zealand'],matches:[
     {date:'Jun 15',kickoff:'2026-06-16T01:00:00Z',home:'Iran',away:'New Zealand',venue:'SoFi Stadium',city:'Los Angeles, CA'},
-    {date:'Jun 15',kickoff:'2026-06-15T22:00:00Z',home:'Belgium',away:'Egypt',venue:'Lumen Field',city:'Seattle, WA'},
-    {date:'Jun 21',kickoff:'2026-06-21T22:00:00Z',home:'New Zealand',away:'Egypt',venue:'BC Place',city:'Vancouver, BC'},
-    {date:'Jun 21',kickoff:'2026-06-22T01:00:00Z',home:'Belgium',away:'Iran',venue:'SoFi Stadium',city:'Los Angeles, CA'},
-    {date:'Jun 26',kickoff:null,home:'Egypt',away:'Iran',venue:'Lumen Field',city:'Seattle, WA'},
-    {date:'Jun 26',kickoff:null,home:'New Zealand',away:'Belgium',venue:'BC Place',city:'Vancouver, BC'},
+    {date:'Jun 15',kickoff:'2026-06-15T19:00:00Z',home:'Belgium',away:'Egypt',venue:'Lumen Field',city:'Seattle, WA'},
+    {date:'Jun 21',kickoff:'2026-06-22T01:00:00Z',home:'New Zealand',away:'Egypt',venue:'BC Place',city:'Vancouver, BC'},
+    {date:'Jun 21',kickoff:'2026-06-21T19:00:00Z',home:'Belgium',away:'Iran',venue:'SoFi Stadium',city:'Los Angeles, CA'},
+    {date:'Jun 26',kickoff:'2026-06-27T03:00:00Z',home:'Egypt',away:'Iran',venue:'Lumen Field',city:'Seattle, WA'},
+    {date:'Jun 26',kickoff:'2026-06-27T03:00:00Z',home:'New Zealand',away:'Belgium',venue:'BC Place',city:'Vancouver, BC'},
   ]},
   {id:'H',teams:['Spain','Cabo Verde','Saudi Arabia','Uruguay'],matches:[
-    {date:'Jun 15',kickoff:'2026-06-15T19:00:00Z',home:'Spain',away:'Cabo Verde',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
-    {date:'Jun 15',kickoff:'2026-06-15T16:00:00Z',home:'Saudi Arabia',away:'Uruguay',venue:'Hard Rock Stadium',city:'Miami, FL'},
-    {date:'Jun 21',kickoff:'2026-06-21T19:00:00Z',home:'Spain',away:'Saudi Arabia',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
-    {date:'Jun 21',kickoff:'2026-06-21T16:00:00Z',home:'Uruguay',away:'Cabo Verde',venue:'Hard Rock Stadium',city:'Miami, FL'},
-    {date:'Jun 26',kickoff:null,home:'Cabo Verde',away:'Saudi Arabia',venue:'NRG Stadium',city:'Houston, TX'},
-    {date:'Jun 26',kickoff:null,home:'Uruguay',away:'Spain',venue:'Estadio Akron',city:'Guadalajara, MX'},
+    {date:'Jun 15',kickoff:'2026-06-15T16:00:00Z',home:'Spain',away:'Cabo Verde',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
+    {date:'Jun 15',kickoff:'2026-06-15T22:00:00Z',home:'Saudi Arabia',away:'Uruguay',venue:'Hard Rock Stadium',city:'Miami, FL'},
+    {date:'Jun 21',kickoff:'2026-06-21T16:00:00Z',home:'Spain',away:'Saudi Arabia',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
+    {date:'Jun 21',kickoff:'2026-06-21T22:00:00Z',home:'Uruguay',away:'Cabo Verde',venue:'Hard Rock Stadium',city:'Miami, FL'},
+    {date:'Jun 26',kickoff:'2026-06-27T00:00:00Z',home:'Cabo Verde',away:'Saudi Arabia',venue:'NRG Stadium',city:'Houston, TX'},
+    {date:'Jun 26',kickoff:'2026-06-27T00:00:00Z',home:'Uruguay',away:'Spain',venue:'Estadio Akron',city:'Guadalajara, MX'},
   ]},
   {id:'I',teams:['France','Senegal','Norway','Iraq'],matches:[
-    {date:'Jun 16',kickoff:'2026-06-17T01:00:00Z',home:'France',away:'Senegal',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
+    {date:'Jun 16',kickoff:'2026-06-16T19:00:00Z',home:'France',away:'Senegal',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
     {date:'Jun 16',kickoff:'2026-06-16T22:00:00Z',home:'Iraq',away:'Norway',venue:'Gillette Stadium',city:'Boston, MA'},
-    {date:'Jun 22',kickoff:'2026-06-23T01:00:00Z',home:'Norway',away:'Senegal',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
-    {date:'Jun 22',kickoff:'2026-06-22T22:00:00Z',home:'France',away:'Iraq',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
-    {date:'Jun 26',kickoff:null,home:'Norway',away:'France',venue:'Gillette Stadium',city:'Boston, MA'},
-    {date:'Jun 26',kickoff:null,home:'Senegal',away:'Iraq',venue:'BMO Field',city:'Toronto, ON'},
+    {date:'Jun 22',kickoff:'2026-06-23T00:00:00Z',home:'Norway',away:'Senegal',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
+    {date:'Jun 22',kickoff:'2026-06-22T21:00:00Z',home:'France',away:'Iraq',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
+    {date:'Jun 26',kickoff:'2026-06-26T19:00:00Z',home:'Norway',away:'France',venue:'Gillette Stadium',city:'Boston, MA'},
+    {date:'Jun 26',kickoff:'2026-06-26T19:00:00Z',home:'Senegal',away:'Iraq',venue:'BMO Field',city:'Toronto, ON'},
   ]},
   {id:'J',teams:['Argentina','Algeria','Austria','Jordan'],matches:[
-    {date:'Jun 16',kickoff:'2026-06-16T19:00:00Z',home:'Argentina',away:'Algeria',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
-    {date:'Jun 16',kickoff:'2026-06-16T16:00:00Z',home:'Austria',away:'Jordan',venue:"Levi's Stadium",city:'San Francisco, CA'},
-    {date:'Jun 22',kickoff:'2026-06-22T19:00:00Z',home:'Argentina',away:'Austria',venue:'AT&T Stadium',city:'Arlington, TX'},
-    {date:'Jun 22',kickoff:'2026-06-22T16:00:00Z',home:'Jordan',away:'Algeria',venue:"Levi's Stadium",city:'San Francisco, CA'},
-    {date:'Jun 27',kickoff:null,home:'Jordan',away:'Argentina',venue:'AT&T Stadium',city:'Arlington, TX'},
-    {date:'Jun 27',kickoff:null,home:'Algeria',away:'Austria',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
+    {date:'Jun 16',kickoff:'2026-06-17T01:00:00Z',home:'Argentina',away:'Algeria',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
+    {date:'Jun 16',kickoff:'2026-06-17T04:00:00Z',home:'Austria',away:'Jordan',venue:'Levi\'s Stadium',city:'San Francisco, CA'},
+    {date:'Jun 22',kickoff:'2026-06-22T17:00:00Z',home:'Argentina',away:'Austria',venue:'AT&T Stadium',city:'Arlington, TX'},
+    {date:'Jun 22',kickoff:'2026-06-23T03:00:00Z',home:'Jordan',away:'Algeria',venue:'Levi\'s Stadium',city:'San Francisco, CA'},
+    {date:'Jun 27',kickoff:'2026-06-28T02:00:00Z',home:'Jordan',away:'Argentina',venue:'AT&T Stadium',city:'Arlington, TX'},
+    {date:'Jun 27',kickoff:'2026-06-28T02:00:00Z',home:'Algeria',away:'Austria',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
   ]},
   {id:'K',teams:['Portugal','Uzbekistan','Colombia','DR Congo'],matches:[
-    {date:'Jun 17',kickoff:'2026-06-18T01:00:00Z',home:'Portugal',away:'DR Congo',venue:'NRG Stadium',city:'Houston, TX'},
-    {date:'Jun 17',kickoff:'2026-06-17T22:00:00Z',home:'Uzbekistan',away:'Colombia',venue:'Estadio Azteca',city:'Mexico City, MX'},
-    {date:'Jun 23',kickoff:'2026-06-23T22:00:00Z',home:'Colombia',away:'DR Congo',venue:'Estadio Akron',city:'Guadalajara, MX'},
-    {date:'Jun 23',kickoff:'2026-06-24T01:00:00Z',home:'Portugal',away:'Uzbekistan',venue:'NRG Stadium',city:'Houston, TX'},
-    {date:'Jun 27',kickoff:null,home:'DR Congo',away:'Uzbekistan',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
-    {date:'Jun 27',kickoff:null,home:'Colombia',away:'Portugal',venue:'Hard Rock Stadium',city:'Miami, FL'},
+    {date:'Jun 17',kickoff:'2026-06-17T17:00:00Z',home:'Portugal',away:'DR Congo',venue:'NRG Stadium',city:'Houston, TX'},
+    {date:'Jun 17',kickoff:'2026-06-18T02:00:00Z',home:'Uzbekistan',away:'Colombia',venue:'Estadio Azteca',city:'Mexico City, MX'},
+    {date:'Jun 23',kickoff:'2026-06-24T02:00:00Z',home:'Colombia',away:'DR Congo',venue:'Estadio Akron',city:'Guadalajara, MX'},
+    {date:'Jun 23',kickoff:'2026-06-23T17:00:00Z',home:'Portugal',away:'Uzbekistan',venue:'NRG Stadium',city:'Houston, TX'},
+    {date:'Jun 27',kickoff:'2026-06-27T23:30:00Z',home:'DR Congo',away:'Uzbekistan',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
+    {date:'Jun 27',kickoff:'2026-06-27T23:30:00Z',home:'Colombia',away:'Portugal',venue:'Hard Rock Stadium',city:'Miami, FL'},
   ]},
   {id:'L',teams:['England','Croatia','Ghana','Panama'],matches:[
-    {date:'Jun 17',kickoff:'2026-06-17T19:00:00Z',home:'England',away:'Croatia',venue:'AT&T Stadium',city:'Arlington, TX'},
-    {date:'Jun 17',kickoff:'2026-06-17T16:00:00Z',home:'Ghana',away:'Panama',venue:'BMO Field',city:'Toronto, ON'},
-    {date:'Jun 23',kickoff:'2026-06-23T19:00:00Z',home:'England',away:'Ghana',venue:'Gillette Stadium',city:'Boston, MA'},
-    {date:'Jun 23',kickoff:'2026-06-23T16:00:00Z',home:'Panama',away:'Croatia',venue:'BMO Field',city:'Toronto, ON'},
-    {date:'Jun 27',kickoff:null,home:'Panama',away:'England',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
-    {date:'Jun 27',kickoff:null,home:'Croatia',away:'Ghana',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
+    {date:'Jun 17',kickoff:'2026-06-17T20:00:00Z',home:'England',away:'Croatia',venue:'AT&T Stadium',city:'Arlington, TX'},
+    {date:'Jun 17',kickoff:'2026-06-17T23:00:00Z',home:'Ghana',away:'Panama',venue:'BMO Field',city:'Toronto, ON'},
+    {date:'Jun 23',kickoff:'2026-06-23T20:00:00Z',home:'England',away:'Ghana',venue:'Gillette Stadium',city:'Boston, MA'},
+    {date:'Jun 23',kickoff:'2026-06-23T23:00:00Z',home:'Panama',away:'Croatia',venue:'BMO Field',city:'Toronto, ON'},
+    {date:'Jun 27',kickoff:'2026-06-27T21:00:00Z',home:'Panama',away:'England',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
+    {date:'Jun 27',kickoff:'2026-06-27T21:00:00Z',home:'Croatia',away:'Ghana',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
   ]},
 ];
 
@@ -646,9 +646,12 @@ function scoreVal(v){
   return c==null?null:c;
 }
 
+// All kickoff times are stored in UTC and displayed in US Pacific time
+// (PT) for every visitor, regardless of their device's timezone.
+const DISPLAY_TZ='America/Los_Angeles';
 function fmtTime(iso){
   if(!iso) return null;
-  try{return new Date(iso).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',timeZoneName:'short'});}catch{return null;}
+  try{return new Date(iso).toLocaleTimeString('en-US',{timeZone:DISPLAY_TZ,hour:'numeric',minute:'2-digit',timeZoneName:'short'});}catch{return null;}
 }
 
 function sbadge(sc){
@@ -1181,13 +1184,13 @@ function renderSF(){
     <div class="ko-venue">📍 ${m.venue} · ${m.city}</div></div>`;
   });
   h+='</div>';
-  h+=`<div style="background:var(--card);border:1px solid var(--card-border);border-radius:7px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--muted)"><strong style="color:var(--gold)">🥉 3rd Place</strong> · Sat Jul 18 · 3PM ET · Hard Rock Stadium · Miami, FL</div>`;
+  h+=`<div style="background:var(--card);border:1px solid var(--card-border);border-radius:7px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--muted)"><strong style="color:var(--gold)">🥉 3rd Place</strong> · Sat Jul 18 · 2:00 PM PT · Hard Rock Stadium · Miami, FL</div>`;
   h+=`<div class="contenders-card"><div class="section-title">📊 TOURNAMENT ODDS</div>`;
   CONTENDERS.forEach(c=>h+=`<div class="crow"><span class="cflag">${c.flag}</span><div class="cinfo"><div class="cname">${c.name}</div><div class="cnote">${c.note}</div></div><div class="codds"><div class="cam">+${c.am}</div><div class="cdec">${a2d(c.am)}</div></div></div>`);
   return h+'</div>';
 }
 function renderFinal(){
-  let h=stageHdr('🏆 THE FINAL','Sunday, July 19, 2026 · 3:00 PM ET','gold');
+  let h=stageHdr('🏆 THE FINAL','Sunday, July 19, 2026 · 12:00 PM PT','gold');
   h+=`<div class="final-card"><div class="final-sub">FIFA WORLD CUP 2026 FINAL</div>
   <div class="final-teams">
     <div class="final-team"><div class="final-flag">🏳️</div><div class="final-name">TBD</div><div class="final-pos">SF Winner 1</div></div>
@@ -1198,11 +1201,11 @@ function renderFinal(){
     <div style="font-size:18px;margin-bottom:3px">🏟️</div>
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff">MetLife Stadium</div>
     <div style="font-size:11px;color:var(--muted);margin-top:1px">East Rutherford, New Jersey</div>
-    <div class="final-time">SUNDAY JULY 19 · 3:00 PM ET</div>
+    <div class="final-time">SUNDAY JULY 19 · 12:00 PM PT</div>
   </div></div>`;
   h+=`<div class="contenders-card"><div class="section-title">📊 FAVORITES TO LIFT THE TROPHY</div>`;
   CONTENDERS.forEach(c=>h+=`<div class="crow"><span class="cflag">${c.flag}</span><div class="cinfo"><div class="cname">${c.name}</div><div class="cnote">${c.note}</div></div><div class="codds"><div class="cam">+${c.am}</div><div class="cdec">${a2d(c.am)}</div></div></div>`);
-  h+=`</div><div style="background:var(--card);border:1px solid var(--card-border);border-radius:7px;padding:10px 14px;max-width:480px;margin:0 auto;font-size:12px;color:var(--muted)"><strong style="color:var(--gold)">🥉 3rd Place Match</strong> · Sat Jul 18 · 3PM ET · Hard Rock Stadium · Miami, FL</div>`;
+  h+=`</div><div style="background:var(--card);border:1px solid var(--card-border);border-radius:7px;padding:10px 14px;max-width:480px;margin:0 auto;font-size:12px;color:var(--muted)"><strong style="color:var(--gold)">🥉 3rd Place Match</strong> · Sat Jul 18 · 2:00 PM PT · Hard Rock Stadium · Miami, FL</div>`;
   return h;
 }
 
@@ -1438,7 +1441,7 @@ function renderCalendar(){
   const byDate={};
   allEvents.forEach(e=>{
     const d=new Date(e.start);
-    const key=d.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
+    const key=d.toLocaleDateString('en-US',{timeZone:DISPLAY_TZ,weekday:'short',month:'short',day:'numeric'});
     if(!byDate[key]) byDate[key]=[];
     byDate[key].push(e);
   });
