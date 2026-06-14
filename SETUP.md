@@ -148,13 +148,18 @@ Settings → Calendar → Accounts → Add Account → Other → Add Subscribed 
 
 ## Step 6 — (Optional) Add your odds API key
 
+Odds are proxied through the Cloudflare Worker (`/api/odds`), which holds the
+key as a **server-side secret** — it is never exposed in the page source, and
+responses are cached so the free 500-requests/month quota is protected no
+matter how many people use the site.
+
 1. Go to **the-odds-api.com** → sign up free → copy your key (500 requests/month free)
-1. In `index.html`, find:
-   
-   ```javascript
-   const ODDS_API_KEY = '4530bc39f97fdab8f270cfbd16770c58';
-   ```
-1. Replace the placeholder key with yours → commit → Cloudflare auto-deploys
+1. Add it as a Worker secret named `ODDS_API_KEY`:
+   - **Dashboard:** Cloudflare → Workers & Pages → `wc2026-tracker` → Settings → Variables and Secrets → Add → type **Secret**, name `ODDS_API_KEY`, paste the key → Deploy
+   - **CLI:** `npx wrangler secret put ODDS_API_KEY`
+1. Verify at `https://<your-worker>.workers.dev/api/odds` — it returns `[]` until the secret is set, then a list of matches.
+
+> Never hard-code the key in `index.html` — it would be visible to anyone who views the page source.
 
 -----
 

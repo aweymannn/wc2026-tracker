@@ -550,7 +550,12 @@ let favTeam=localStorage.getItem('wc2026_fav')||'';
 // Odds are always attempted via the Worker proxy; if the proxy has no key
 // configured (or the quota is spent) it returns no odds and the UI degrades.
 const hasOdds=()=>true;
-let oddsAt=0;   // timestamp of last successful odds fetch (client-side cache)
+let oddsAt=0;        // timestamp of last successful odds fetch (client-side cache)
+let oddsStatus='';   // '', 'ok', or 'unavailable' (e.g. monthly quota reached)
+function oddsNote(){
+  if(oddsStatus!=='unavailable') return '';
+  return `<div class="alert alert-gold">📊 Live betting odds are temporarily unavailable — the free monthly limit has been reached. Everything else on the site is live and up to date.</div>`;
+}
 const a2d=n=>n>0?((n/100)+1).toFixed(2):((100/Math.abs(n))+1).toFixed(2);
 const fmtAm=n=>n>0?'+'+n:''+n;
 const oc=n=>n>=0?'opos':'oneg';
@@ -761,8 +766,9 @@ async function fetchOdds(){
   // This also means the 60s live-score loop never re-hits the odds proxy.
   if(oddsAt && Date.now()-oddsAt < ODDS_TTL && Object.keys(oddsMap).length) return;
   let r;
-  try{ r=await fetch(ODDS_ENDPOINT); }catch{ return; }   // let the edge cache serve it
-  if(!r.ok) return;
+  try{ r=await fetch(ODDS_ENDPOINT); }catch{ oddsStatus='unavailable'; return; }   // let the edge cache serve it
+  if(!r.ok){ oddsStatus='unavailable'; return; }
+  oddsStatus=r.headers.get('X-Odds-Status')||'ok';
   const data=await r.json().catch(()=>null);
   if(!Array.isArray(data)) return;
   const next={};
@@ -778,7 +784,10 @@ async function fetchOdds(){
   oddsMap=next;
   oddsAt=Date.now();
   const p=document.getElementById('odds-pill');
-  if(p&&Object.keys(oddsMap).length){p.style.display='';p.className='pill pill-ok';p.textContent='📊 Odds Live';}
+  if(p){
+    if(oddsStatus==='unavailable'){p.style.display='';p.className='pill pill-warn';p.textContent='📊 Odds unavailable';}
+    else if(Object.keys(oddsMap).length){p.style.display='';p.className='pill pill-ok';p.textContent='📊 Odds Live';}
+  }
 }
 
 async function refreshAll(){
@@ -867,16 +876,32 @@ setInterval(()=>{
   });
 },1000);
 
+// ── PACIFIC-DATE HELPERS ───────────────────────────────
+// All "today"/"this week" logic uses the Pacific calendar day so it matches
+// the displayed kickoff times regardless of the visitor's own timezone.
+function pacDate(d){ // 'YYYY-MM-DD' in Pacific
+  const p=new Intl.DateTimeFormat('en-CA',{timeZone:DISPLAY_TZ,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);
+  const o={};p.forEach(x=>o[x.type]=x.value);
+  return `${o.year}-${o.month}-${o.day}`;
+}
+function pacWeekday(d){ // 0=Sun .. 6=Sat, in Pacific
+  const wd=new Intl.DateTimeFormat('en-US',{timeZone:DISPLAY_TZ,weekday:'short'}).format(d);
+  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(wd);
+}
+function pacDayLabel(d){ // e.g. 'Thu'
+  return new Intl.DateTimeFormat('en-US',{timeZone:DISPLAY_TZ,weekday:'short'}).format(d);
+}
+
 // ── TODAY BANNER ───────────────────────────────────────
 function todayBanner(){
-  const today=new Date();
+  const todayKey=pacDate(new Date());
   const todayMatches=[];
   GROUPS.forEach(g=>g.matches.forEach(m=>{
     if(!m.kickoff) return;
-    const diff=Math.abs(new Date(m.kickoff)-today)/86400000;
-    if(diff<1.2) todayMatches.push({...m,group:g.id});
+    if(pacDate(new Date(m.kickoff))===todayKey) todayMatches.push({...m,group:g.id});
   }));
   if(!todayMatches.length) return '';
+  todayMatches.sort((a,b)=>new Date(a.kickoff)-new Date(b.kickoff));
   let h=`<div class="today-wrap"><div class="today-title">⚽ TODAY'S MATCHES</div>`;
   todayMatches.forEach(m=>{
     const sc=getScore(m.home,m.away);
@@ -884,6 +909,39 @@ function todayBanner(){
     const kt=fmtTime(m.kickoff);
     h+=`<div class="today-item">
       <span class="today-time">${kt||m.date}</span>
+      <span class="today-teams">${fl(m.home)} <span style="color:var(--dim)">vs</span> ${fl(m.away)}</span>
+      ${badge||''}
+      <span class="today-venue">Grp ${m.group} · ${m.city}</span>
+    </div>`;
+  });
+  return h+'</div>';
+}
+
+// ── THIS WEEK BANNER ───────────────────────────────────
+// Every match already kicked off this week (Mon → now, Pacific), with scores.
+function weekBanner(){
+  const now=new Date();
+  const daysSinceMon=(pacWeekday(now)+6)%7;        // Mon=0 … Sun=6
+  const weekDays=new Set();
+  for(let i=daysSinceMon;i>=0;i--) weekDays.add(pacDate(new Date(now.getTime()-i*86400000)));
+  const played=[];
+  GROUPS.forEach(g=>g.matches.forEach(m=>{
+    if(!m.kickoff) return;
+    const k=new Date(m.kickoff);
+    if(k<=now && weekDays.has(pacDate(k))) played.push({...m,group:g.id});
+  }));
+  if(!played.length) return '';
+  played.sort((a,b)=>new Date(a.kickoff)-new Date(b.kickoff));
+  let goals=0,withScore=0;
+  played.forEach(m=>{const sc=getScore(m.home,m.away);if(sc&&sc.home_score!=null&&sc.away_score!=null){goals+=Number(sc.home_score)+Number(sc.away_score);withScore++;}});
+  const summary=`${played.length} match${played.length!==1?'es':''}${withScore?` · ${goals} goal${goals!==1?'s':''}`:''}`;
+  let h=`<div class="today-wrap"><div class="today-title">📆 THIS WEEK'S MATCHES <span style="color:var(--muted);font-weight:400;letter-spacing:.02em">· ${summary}</span></div>`;
+  played.forEach(m=>{
+    const sc=getScore(m.home,m.away);
+    const badge=sbadge(sc);
+    const kt=fmtTime(m.kickoff);
+    h+=`<div class="today-item">
+      <span class="today-time">${pacDayLabel(new Date(m.kickoff))}${kt?' '+kt:''}</span>
       <span class="today-teams">${fl(m.home)} <span style="color:var(--dim)">vs</span> ${fl(m.away)}</span>
       ${badge||''}
       <span class="today-venue">Grp ${m.group} · ${m.city}</span>
@@ -924,7 +982,7 @@ function setFav(t){favTeam=t===favTeam?'':t;localStorage.setItem('wc2026_fav',fa
 
 // ── RENDER: GROUPS ─────────────────────────────────────
 function renderGroups(){
-  let h=countdown()+todayBanner()+favPanel();
+  let h=countdown()+todayBanner()+weekBanner()+oddsNote()+favPanel();
   h+=stageHdr('GROUP STAGE','Jun 11 – Jun 27 · 12 Groups · 72 Matches');
   h+=`<p class="lead">Top <strong>2 from each group</strong> + <strong>8 best 3rd-place</strong> teams advance to Round of 32. Tap any group to expand its schedule.</p>`;
   h+='<div class="grid-groups">';

@@ -21,12 +21,15 @@ const ODDS_URL =
 const EDGE_TTL = 1800;   // seconds (s-maxage)
 const BROWSER_TTL = 900; // seconds (max-age) — browsers reuse for 15 min
 
-function jsonResponse(body, { sMaxAge = EDGE_TTL, maxAge = BROWSER_TTL } = {}) {
+function jsonResponse(body, { sMaxAge = EDGE_TTL, maxAge = BROWSER_TTL, status = 'ok' } = {}) {
   return new Response(typeof body === 'string' ? body : JSON.stringify(body), {
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': `public, max-age=${maxAge}, s-maxage=${sMaxAge}`,
       'Access-Control-Allow-Origin': '*',
+      // Tells the client whether live odds are actually available, so it can
+      // show an "odds unavailable" note when the quota is spent / key missing.
+      'X-Odds-Status': status,
     },
   });
 }
@@ -44,23 +47,23 @@ async function handleOdds(request, env, ctx) {
   // No key configured → behave gracefully: empty odds, short cache so it
   // starts working as soon as the secret is added.
   if (!env.ODDS_API_KEY) {
-    return jsonResponse('[]', { sMaxAge: 60, maxAge: 60 });
+    return jsonResponse('[]', { sMaxAge: 60, maxAge: 60, status: 'unavailable' });
   }
 
   let upstream;
   try {
     upstream = await fetch(`${ODDS_URL}&apiKey=${env.ODDS_API_KEY}`);
   } catch {
-    return jsonResponse('[]', { sMaxAge: 120, maxAge: 60 });
+    return jsonResponse('[]', { sMaxAge: 120, maxAge: 60, status: 'unavailable' });
   }
 
   // Upstream error (e.g. quota exhausted / bad key) → empty odds, retry soon.
   if (!upstream.ok) {
-    return jsonResponse('[]', { sMaxAge: 300, maxAge: 60 });
+    return jsonResponse('[]', { sMaxAge: 300, maxAge: 60, status: 'unavailable' });
   }
 
   const body = await upstream.text();
-  const response = jsonResponse(body);
+  const response = jsonResponse(body, { status: 'ok' });
   // Store at the edge for EDGE_TTL; don't block the response on the write.
   ctx.waitUntil(cache.put(cacheKey, response.clone()));
   return response;
