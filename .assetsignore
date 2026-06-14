@@ -1,0 +1,13 @@
+# Files in the repo root that must NOT be published as static assets.
+# The assets directory is "." (see wrangler.jsonc), so exclude everything
+# that isn't part of the actual site (index.html, schedule.ics, _headers).
+node_modules
+.git
+.github
+.gitignore
+.assetsignore
+*.md
+generate_ics.js
+wrangler.jsonc
+package.json
+package-lock.json
