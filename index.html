@@ -342,9 +342,14 @@ a{color:var(--gold)}
 // ═══════════════════════════════════════════════════════
 //  CONFIGURATION — optional keys for enhanced data
 //  Free data source (worldcup26.ir) requires NO key at all
-//  Odds key → free at the-odds-api.com (500 req/mo)
+//  Odds are proxied through our own Cloudflare Worker (/api/odds),
+//  which holds the the-odds-api key as a server-side secret and
+//  caches responses — so the key is never exposed in this page and
+//  the shared 500-req/month quota is protected no matter how many
+//  people open or refresh the site.
 // ═══════════════════════════════════════════════════════
-const ODDS_API_KEY = '4530bc39f97fdab8f270cfbd16770c58';
+const ODDS_ENDPOINT = '/api/odds';              // same-origin Worker proxy
+const ODDS_TTL      = 15 * 60 * 1000;           // client: refetch odds at most every 15 min
 const FREE_API     = 'https://worldcup26.ir';   // no key needed
 // ── YOUR DEPLOYED SITE URL (update after first Cloudflare deploy) ──
 // e.g. 'https://wc2026-tracker.pages.dev' — no trailing slash
@@ -542,7 +547,10 @@ let teamById={}, scoresMap={}, standingsMap={}, oddsMap={};
 let rawGames=[], hasLive=false, loadingData=false, liveRefreshTimer=null;
 let favTeam=localStorage.getItem('wc2026_fav')||'';
 
-const hasOdds=()=>ODDS_API_KEY.trim().length>8;
+// Odds are always attempted via the Worker proxy; if the proxy has no key
+// configured (or the quota is spent) it returns no odds and the UI degrades.
+const hasOdds=()=>true;
+let oddsAt=0;   // timestamp of last successful odds fetch (client-side cache)
 const a2d=n=>n>0?((n/100)+1).toFixed(2):((100/Math.abs(n))+1).toFixed(2);
 const fmtAm=n=>n>0?'+'+n:''+n;
 const oc=n=>n>=0?'opos':'oneg';
@@ -749,12 +757,15 @@ async function fetchGroups(){
 }
 
 async function fetchOdds(){
-  if(!hasOdds()) return;
-  const r=await fetch(`https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds/?apiKey=${ODDS_API_KEY}&regions=us&markets=h2h&oddsFormat=american`,noCache);
+  // Client-side cache: don't refetch odds more than once per ODDS_TTL.
+  // This also means the 60s live-score loop never re-hits the odds proxy.
+  if(oddsAt && Date.now()-oddsAt < ODDS_TTL && Object.keys(oddsMap).length) return;
+  let r;
+  try{ r=await fetch(ODDS_ENDPOINT); }catch{ return; }   // let the edge cache serve it
   if(!r.ok) return;
-  const rem=r.headers.get('x-requests-remaining');
-  const data=await r.json();
-  oddsMap={};
+  const data=await r.json().catch(()=>null);
+  if(!Array.isArray(data)) return;
+  const next={};
   data.forEach(e=>{
     const {home_team:ht,away_team:at,bookmakers:bks}=e;
     if(!bks||!bks.length) return;
@@ -762,10 +773,12 @@ async function fetchOdds(){
     if(!h2h) return;
     const out={};h2h.outcomes.forEach(o=>{out[o.name]=o.price;});
     const entry={homeTeam:ht,awayTeam:at,home:out[ht],away:out[at],draw:out['Draw'],bookmaker:bk.title};
-    oddsMap[ht+'_'+at]=entry; oddsMap[at+'_'+ht]=entry;
+    next[ht+'_'+at]=entry; next[at+'_'+ht]=entry;
   });
+  oddsMap=next;
+  oddsAt=Date.now();
   const p=document.getElementById('odds-pill');
-  if(p){p.style.display='';p.className='pill pill-ok';p.textContent='📊 Odds Live';}
+  if(p&&Object.keys(oddsMap).length){p.style.display='';p.className='pill pill-ok';p.textContent='📊 Odds Live';}
 }
 
 async function refreshAll(){
@@ -1471,10 +1484,7 @@ function renderCalendar(){
 
 // ── INIT ───────────────────────────────────────────────
 (function(){
-  if(hasOdds()){
-    const p=document.getElementById('odds-pill');
-    if(p){p.style.display='';p.className='pill pill-warn';p.textContent='📊 Odds key set';}
-  }
+  // The odds pill is revealed by fetchOdds() only once odds actually load.
   render('groups');
   refreshAll();
 })();

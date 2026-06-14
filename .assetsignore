@@ -8,6 +8,7 @@ node_modules
 .assetsignore
 *.md
 generate_ics.js
+worker.js
 wrangler.jsonc
 package.json
 package-lock.json
