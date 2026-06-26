@@ -830,7 +830,8 @@ async function refreshAll(){
     const jobs=[
       ['Teams',fetchTeams()],
       ['Scores',fetchGames()],
-      ['Standings',fetchGroups()]
+      ['Standings',fetchGroups()],
+      ['Players',fetchWcData()]
     ];
     if(hasOdds()) jobs.push(['Odds',fetchOdds()]);
     const results=await Promise.allSettled(jobs.map(j=>j[1]));
@@ -1148,6 +1149,106 @@ function renderBracket(){
   return h;
 }
 
+// ── PLAYER STATS & RECORDS (data: openfootball via /api/wcdata) ────────
+let wcStats=null;   // computed player/record stats, or null until loaded
+// All-time FIFA World Cup reference records (stable historical facts).
+const WC_RECORDS={
+  goldenBoot:{n:13,who:'Just Fontaine',year:1958},
+  teamMatchGoals:{n:10,who:'Hungary (10–1 El Salvador)',year:1982},
+  margin:{n:9,who:'Hungary 10–1 El Salvador',year:1982},
+};
+async function fetchWcData(){
+  let r; try{ r=await fetch('/api/wcdata'); }catch{ return; }
+  if(!r.ok) return;
+  const d=await r.json().catch(()=>null);
+  if(d&&Array.isArray(d.matches)) wcStats=computePlayerStats(d.matches);
+}
+function computePlayerStats(matches){
+  const played=matches.filter(m=>m&&m.score&&Array.isArray(m.score.ft));
+  const tally={}, hats=[];
+  played.forEach(m=>{
+    [['goals1',m.team1],['goals2',m.team2]].forEach(([k,team])=>{
+      const per={};
+      (m[k]||[]).forEach(g=>{
+        if(!g||g.owngoal||!g.name) return;   // own goals don't count toward scorers
+        const t=tally[g.name]||(tally[g.name]={name:g.name,team:norm(team),goals:0,pens:0});
+        t.goals++; if(g.penalty) t.pens++;
+        per[g.name]=(per[g.name]||0)+1;
+      });
+      Object.entries(per).forEach(([name,n])=>{ if(n>=3) hats.push({name,team:norm(team),goals:n,match:`${norm(m.team1)} v ${norm(m.team2)}`,date:m.date}); });
+    });
+  });
+  const scorers=Object.values(tally).sort((a,b)=>b.goals-a.goals||a.pens-b.pens||a.name.localeCompare(b.name));
+  let high=null,big=null,maxTeamMatch=0; const teamGoals={};
+  played.forEach(m=>{
+    const a=m.score.ft[0]??0,b=m.score.ft[1]??0,tot=a+b,marg=Math.abs(a-b);
+    const label=`${norm(m.team1)} ${a}–${b} ${norm(m.team2)}`;
+    if(!high||tot>high.tot) high={tot,label};
+    if(!big||marg>big.marg) big={marg,label};
+    maxTeamMatch=Math.max(maxTeamMatch,a,b);
+    teamGoals[norm(m.team1)]=(teamGoals[norm(m.team1)]||0)+a;
+    teamGoals[norm(m.team2)]=(teamGoals[norm(m.team2)]||0)+b;
+  });
+  const tt=Object.entries(teamGoals).sort((x,y)=>y[1]-x[1])[0];
+  const topTeam=tt?{team:tt[0],goals:tt[1]}:null;
+  const records=[];
+  if(scorers.length&&scorers[0].goals>WC_RECORDS.goldenBoot.n) records.push(`${scorers[0].name} passed the single-tournament goals record (${scorers[0].goals} vs ${WC_RECORDS.goldenBoot.n}, ${WC_RECORDS.goldenBoot.who} ${WC_RECORDS.goldenBoot.year})`);
+  if(maxTeamMatch>WC_RECORDS.teamMatchGoals.n) records.push(`A team scored ${maxTeamMatch} in one match — past the all-time ${WC_RECORDS.teamMatchGoals.n}`);
+  if(big&&big.marg>WC_RECORDS.margin.n) records.push(`Win margin of ${big.marg} — past the all-time ${WC_RECORDS.margin.n}`);
+  return {played:played.length,scorers,hats,high,big,topTeam,maxTeamMatch,records};
+}
+function mileRow(label,main,val){
+  return `<div class="stat-row"><div class="stat-name"><span style="color:var(--muted);font-size:10px">${label}</span><div style="font-size:12px;color:var(--text);margin-top:1px">${main}</div></div>
+    ${val?`<div style="text-align:right"><div class="stat-val" style="font-size:15px">${val}</div></div>`:''}</div>`;
+}
+function recRow(label,cur,rec){
+  const broke=cur>rec.n;
+  return `<div class="bar-row" style="align-items:center;gap:9px">
+    <div class="bar-label" style="min-width:150px;white-space:normal">${label}</div>
+    <div style="flex:1;font-size:11px;color:var(--text)">Now <strong>${cur}</strong> · record <strong>${rec.n}</strong> <span style="color:var(--dim)">(${rec.who}${rec.year?', '+rec.year:''})</span></div>
+    ${broke?'<span class="r32-pill">🏆 NEW</span>':''}
+  </div>`;
+}
+function renderPlayerStats(){
+  const w=wcStats;
+  if(!w||!w.played){
+    return `<div class="alert alert-gold">👤 Player stats &amp; records populate as matches are played — data via openfootball (updates periodically). Click ⟳ Refresh.</div>`;
+  }
+  let h='';
+  if(w.records.length){
+    h+=`<div class="alert alert-green">🏆 <strong>NEW WORLD CUP RECORD!</strong> ${w.records.join(' · ')}</div>`;
+  }
+  h+='<div class="grid-stats">';
+  // Top scorers
+  let ts=`<div class="stat-card"><div class="stat-card-title">⚽ TOP SCORERS · GOLDEN BOOT</div>`;
+  if(!w.scorers.length) ts+=`<div style="font-size:11px;color:var(--dim);padding:6px 0">No goals yet</div>`;
+  else w.scorers.slice(0,10).forEach((s,i)=>{
+    const rc=i===0?'rk-g':i===1?'rk-s':i===2?'rk-b':'';
+    ts+=`<div class="stat-row"><div class="stat-rank ${rc}">${i+1}</div>
+      <div class="stat-name">${s.name} <span style="color:var(--dim);font-size:10px">${FLAGS[s.team]||''} ${s.team}</span></div>
+      <div style="text-align:right"><div class="stat-val">${s.goals}</div><div class="stat-sub">${s.pens?`${s.pens} pen`:'goal'+(s.goals!==1?'s':'')}</div></div></div>`;
+  });
+  ts+='</div>'; h+=ts;
+  // Records & milestones
+  let rc=`<div class="stat-card"><div class="stat-card-title">🏅 RECORDS &amp; MILESTONES</div>`;
+  const gb=w.scorers[0];
+  rc+=mileRow('Golden Boot leader', gb?`${FLAGS[gb.team]||''} ${gb.name}`:'—', gb?`${gb.goals}`:'');
+  rc+=mileRow('Hat-tricks', w.hats.length?w.hats.map(x=>`${x.name} (${x.goals})`).join(', '):'None yet', w.hats.length||'');
+  rc+=mileRow('Highest-scoring match', w.high?w.high.label:'—', w.high?w.high.tot:'');
+  rc+=mileRow('Biggest win', w.big?w.big.label:'—', w.big?'+'+w.big.marg:'');
+  rc+=mileRow('Most goals · team', w.topTeam?`${FLAGS[w.topTeam.team]||''} ${w.topTeam.team}`:'—', w.topTeam?w.topTeam.goals:'');
+  rc+='</div>'; h+=rc;
+  h+='</div>';
+  // All-time record watch
+  h+=`<div class="stat-card" style="margin-top:12px"><div class="stat-card-title">🏆 WORLD CUP RECORD WATCH</div>`;
+  h+=recRow('Goals in one tournament (player)', gb?gb.goals:0, WC_RECORDS.goldenBoot);
+  h+=recRow('Goals by a team in a match', w.maxTeamMatch||0, WC_RECORDS.teamMatchGoals);
+  h+=recRow('Biggest win margin', w.big?w.big.marg:0, WC_RECORDS.margin);
+  h+=`<div style="font-size:9px;color:var(--dim);margin-top:6px">All-time figures are full-history FIFA World Cup records.</div>`;
+  h+='</div>';
+  return h;
+}
+
 // ── RENDER: STATS ──────────────────────────────────────
 function computeStats(){
   const ts={};
@@ -1183,10 +1284,13 @@ function computeStats(){
 }
 
 function renderStats(){
-  let h=stageHdr('TOURNAMENT STATISTICS','Computed from completed match data · no extra API calls');
+  let h=stageHdr('TOURNAMENT STATISTICS','Team stats from live results · player stats &amp; records via openfootball');
   const st=computeStats();
   const has=st.played>0;
   if(!has) h+=`<div class="alert alert-gold">📊 Statistics populate once matches kick off June 11. Click ⟳ Refresh after games complete.</div>`;
+  // Individual player stats + tournament/all-time records
+  h+=renderPlayerStats();
+  h+=`<div class="section-title" style="margin-top:18px">TEAM STATISTICS</div>`;
   h+='<div class="big-stats">';
   const bigs=[
     [has?st.totalGoals:'–','Goals Scored'],

@@ -6,7 +6,9 @@
 //      the page source, and caching the response at the edge so the shared
 //      500-requests/month free quota is protected no matter how many
 //      visitors open or refresh the site.
-//   2. Everything else → served from the static assets (index.html,
+//   2. /api/wcdata → proxy the public-domain openfootball dataset (match
+//      results + goal scorers), cached at the edge. Powers player stats.
+//   3. Everything else → served from the static assets (index.html,
 //      schedule.ics, _headers, …) via the ASSETS binding.
 //
 // The odds key is set with:  npx wrangler secret put ODDS_API_KEY
@@ -15,6 +17,10 @@
 const ODDS_URL =
   'https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds/' +
   '?regions=us&markets=h2h&oddsFormat=american';
+
+// Public-domain match data incl. goal scorers (no key, CORS-enabled).
+const WCDATA_URL =
+  'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
 
 // How long the edge keeps one upstream response before calling the API again.
 // 30 min shared cache → at most ~48 upstream calls/day regardless of traffic.
@@ -69,11 +75,47 @@ async function handleOdds(request, env, ctx) {
   return response;
 }
 
+async function handleWcData(request, env, ctx) {
+  const cache = caches.default;
+  const cacheKey = new Request(new URL('/api/wcdata', request.url).toString(), {
+    method: 'GET',
+  });
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
+  let upstream;
+  try {
+    upstream = await fetch(WCDATA_URL);
+  } catch {
+    return new Response('{"matches":[]}', {
+      headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=60', 'Access-Control-Allow-Origin': '*' },
+    });
+  }
+  if (!upstream.ok) {
+    return new Response('{"matches":[]}', {
+      headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=120', 'Access-Control-Allow-Origin': '*' },
+    });
+  }
+  const body = await upstream.text();
+  const response = new Response(body, {
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': `public, max-age=${BROWSER_TTL}, s-maxage=${EDGE_TTL}`,
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+  ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === '/api/odds') {
       return handleOdds(request, env, ctx);
+    }
+    if (url.pathname === '/api/wcdata') {
+      return handleWcData(request, env, ctx);
     }
     // Everything else is a static asset.
     return env.ASSETS.fetch(request);
