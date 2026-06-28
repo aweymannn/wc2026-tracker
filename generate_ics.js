@@ -108,6 +108,48 @@ const GROUPS = [
 const FINAL = {home:'TBD — SF Winner 1',away:'TBD — SF Winner 2',kickoff:'2026-07-19T19:00:00Z',venue:'MetLife Stadium',city:'East Rutherford, NJ'};
 const THIRD = {home:'TBD — SF Loser 1',away:'TBD — SF Loser 2',kickoff:'2026-07-18T21:00:00Z',venue:'Hard Rock Stadium',city:'Miami, FL'};
 
+const KO = {
+  r32: [
+    {home:'Group A 2nd',away:'Group B 2nd',kickoff:'2026-06-28T19:00:00Z',venue:'SoFi Stadium',city:'Los Angeles, CA'},
+    {home:'Group E 1st',away:'Best 3rd (A/B/C/D/F)',kickoff:'2026-06-29T20:30:00Z',venue:'Gillette Stadium',city:'Boston, MA'},
+    {home:'Group C 1st',away:'Group F 2nd',kickoff:'2026-06-29T17:00:00Z',venue:'NRG Stadium',city:'Houston, TX'},
+    {home:'Group F 1st',away:'Group C 2nd',kickoff:'2026-06-30T01:00:00Z',venue:'Estadio BBVA',city:'Monterrey, MX'},
+    {home:'Group E 2nd',away:'Group I 2nd',kickoff:'2026-06-30T17:00:00Z',venue:'AT&T Stadium',city:'Arlington, TX'},
+    {home:'Group A 1st',away:'Best 3rd (C/E/F/H/I)',kickoff:'2026-07-01T01:00:00Z',venue:'Estadio Azteca',city:'Mexico City, MX'},
+    {home:'Group I 1st',away:'Best 3rd (C/D/F/G/H)',kickoff:'2026-06-30T21:00:00Z',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
+    {home:'Group L 1st',away:'Best 3rd (E/H/I/J/K)',kickoff:'2026-07-01T16:00:00Z',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
+    {home:'Group D 1st',away:'Best 3rd (B/E/F/I/J)',kickoff:'2026-07-02T00:00:00Z',venue:'Levi\'s Stadium',city:'San Francisco, CA'},
+    {home:'Group G 1st',away:'Best 3rd (A/E/H/I/J)',kickoff:'2026-07-01T20:00:00Z',venue:'Lumen Field',city:'Seattle, WA'},
+    {home:'Group H 1st',away:'Group J 2nd',kickoff:'2026-07-02T19:00:00Z',venue:'SoFi Stadium',city:'Los Angeles, CA'},
+    {home:'Group K 2nd',away:'Group L 2nd',kickoff:'2026-07-02T23:00:00Z',venue:'BMO Field',city:'Toronto, ON'},
+    {home:'Group B 1st',away:'Best 3rd (E/F/G/I/J)',kickoff:'2026-07-03T03:00:00Z',venue:'BC Place',city:'Vancouver, BC'},
+    {home:'Group D 2nd',away:'Group G 2nd',kickoff:'2026-07-03T18:00:00Z',venue:'AT&T Stadium',city:'Arlington, TX'},
+    {home:'Group K 1st',away:'Best 3rd (D/E/I/J/L)',kickoff:'2026-07-04T01:30:00Z',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
+    {home:'Group J 1st',away:'Group H 2nd',kickoff:'2026-07-03T22:00:00Z',venue:'Hard Rock Stadium',city:'Miami, FL'},
+  ],
+  r16: [
+    {home:'R32 W1',away:'R32 W2',kickoff:'2026-07-04T17:00:00Z',venue:'NRG Stadium',city:'Houston, TX'},
+    {home:'R32 W3',away:'R32 W4',kickoff:'2026-07-04T21:00:00Z',venue:'Lincoln Financial Field',city:'Philadelphia, PA'},
+    {home:'R32 W5',away:'R32 W6',kickoff:'2026-07-05T20:00:00Z',venue:'MetLife Stadium',city:'East Rutherford, NJ'},
+    {home:'R32 W7',away:'R32 W8',kickoff:'2026-07-06T00:00:00Z',venue:'Estadio Azteca',city:'Mexico City, MX'},
+    {home:'R32 W9',away:'R32 W10',kickoff:'2026-07-06T19:00:00Z',venue:'AT&T Stadium',city:'Arlington, TX'},
+    {home:'R32 W11',away:'R32 W12',kickoff:'2026-07-07T00:00:00Z',venue:'Lumen Field',city:'Seattle, WA'},
+    {home:'R32 W13',away:'R32 W14',kickoff:'2026-07-07T16:00:00Z',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
+    {home:'R32 W15',away:'R32 W16',kickoff:'2026-07-07T20:00:00Z',venue:'BC Place',city:'Vancouver, BC'},
+  ],
+  qf: [
+    {home:'R16 W1',away:'R16 W2',kickoff:'2026-07-09T20:00:00Z',venue:'Gillette Stadium',city:'Boston, MA'},
+    {home:'R16 W3',away:'R16 W4',kickoff:'2026-07-10T19:00:00Z',venue:'SoFi Stadium',city:'Los Angeles, CA'},
+    {home:'R16 W5',away:'R16 W6',kickoff:'2026-07-11T21:00:00Z',venue:'Hard Rock Stadium',city:'Miami, FL'},
+    {home:'R16 W7',away:'R16 W8',kickoff:'2026-07-12T01:00:00Z',venue:'Arrowhead Stadium',city:'Kansas City, MO'},
+  ],
+  sf: [
+    {home:'QF W1',away:'QF W2',kickoff:'2026-07-14T19:00:00Z',venue:'AT&T Stadium',city:'Arlington, TX'},
+    {home:'QF W3',away:'QF W4',kickoff:'2026-07-15T19:00:00Z',venue:'Mercedes-Benz Stadium',city:'Atlanta, GA'},
+  ]
+};
+const KO_LABELS = {r32:'Round of 32', r16:'Round of 16', qf:'Quarterfinal', sf:'Semifinal'};
+
 // ── ICS helpers ────────────────────────────────────────────────
 function icsDate(iso) {
   const d = new Date(iso);
@@ -160,6 +202,16 @@ GROUPS.forEach(g => {
   });
 });
 
+// Knockout rounds (teams TBD — bracket positions until decided)
+Object.entries(KO).forEach(([rd, matches]) => {
+  matches.forEach((m, i) => {
+    const round = KO_LABELS[rd];
+    const desc = `FIFA World Cup 2026 — ${round}\n${m.home} vs ${m.away}\n${m.venue}, ${m.city}`;
+    const uid  = `wc2026-${rd}-${i+1}@wc2026tracker`;
+    lines.push(vevent(m.home, m.away, m.kickoff, m.venue, m.city, desc, uid));
+  });
+});
+
 // 3rd place and Final (TBD until semis are played)
 const thirdDesc = `FIFA World Cup 2026 — 3rd Place Match\nSF Loser 1 vs SF Loser 2\n${THIRD.venue}, ${THIRD.city}`;
 lines.push(vevent(THIRD.home, THIRD.away, THIRD.kickoff, THIRD.venue, THIRD.city, thirdDesc, 'wc2026-3rdplace@wc2026tracker'));
@@ -171,4 +223,4 @@ lines.push('END:VCALENDAR');
 
 const output = lines.join('\r\n') + '\r\n';
 fs.writeFileSync('schedule.ics', output, 'utf8');
-console.log(`✅ schedule.ics written — ${GROUPS.reduce((s,g)=>s+g.matches.length,0)+2} events`);
+console.log(`✅ schedule.ics written — ${lines.filter(l => l === 'BEGIN:VEVENT').length} events`);
