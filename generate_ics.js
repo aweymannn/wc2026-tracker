@@ -223,4 +223,4 @@ lines.push('END:VCALENDAR');
 
 const output = lines.join('\r\n') + '\r\n';
 fs.writeFileSync('schedule.ics', output, 'utf8');
-console.log(`✅ schedule.ics written — ${lines.filter(l => l === 'BEGIN:VEVENT').length} events`);
+console.log(`✅ schedule.ics written — ${output.split('BEGIN:VEVENT').length - 1} events`);
