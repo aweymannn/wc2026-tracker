@@ -908,8 +908,8 @@ function render(id){
   el.className='page';
   const map={groups:renderGroups,standings:renderStandings,bracket:renderBracket,
     stats:renderStats,venues:renderVenues,calendar:renderCalendar,
-    r32:()=>renderKo('ROUND OF 32','Jun 28 – Jul 3 · 16 Matches',KO.r32,'MATCH'),
-    r16:()=>renderKo('ROUND OF 16','Jul 4 – Jul 7 · 8 Matches',KO.r16,'R16'),
+    r32:()=>renderKo('ROUND OF 32','Jun 28 – Jul 3 · 16 Matches',KO.r32,'MATCH','r32'),
+    r16:()=>renderKo('ROUND OF 16','Jul 4 – Jul 7 · 8 Matches',KO.r16,'R16','r16'),
     qf:renderQF,sf:renderSF,final:renderFinal};
   el.innerHTML=(map[id]||renderGroups)();
 }
@@ -1174,7 +1174,13 @@ function kTeamRow(r,other,sc,side){
   const fav=pct!=null&&oPct!=null&&pct>=oPct;
   const myScore=sc?(side==='home'?sc.home_score:sc.away_score):null;
   const oScore=sc?(side==='home'?sc.away_score:sc.home_score):null;
-  const win=myScore!=null&&oScore!=null&&Number(myScore)>Number(oScore);
+  let win=false;
+  if(myScore!=null&&oScore!=null){
+    if(Number(myScore)>Number(oScore)) win=true;
+    else if(Number(myScore)===Number(oScore)&&sc&&sc.pens){
+      win=Number(side==='home'?sc.pens[0]:sc.pens[1])>Number(side==='home'?sc.pens[1]:sc.pens[0]);
+    }
+  }
   const fill=fav?'var(--green)':'#7f1d1d';
   return `<div class="kteam${win?' kwin':''}">
     <div class="kteam-top">
@@ -1189,23 +1195,23 @@ function renderBracket(){
   let h=stageHdr('KNOCKOUT BRACKET','Fills in as the tournament progresses');
   h+=`<p class="bracket-note">Teams populate from the live group tables as each group is decided (a <span style="color:var(--gold);font-weight:700">•</span> marks a provisional position). Win-% bars appear when live odds are available. Scroll sideways to see every round →</p>`;
   const rounds=[
-    {label:'Round of 32',matches:KO.r32},
-    {label:'Round of 16',matches:KO.r16},
-    {label:'Quarterfinals',matches:KO.qf},
-    {label:'Semifinals',matches:KO.sf},
-    {label:'Final',matches:[{date:'Jul 19',kickoff:'2026-07-19T19:00:00Z',home:'SF W1',away:'SF W2',venue:'MetLife Stadium',city:'East Rutherford, NJ'}]},
+    {label:'Round of 32',key:'r32',matches:KO.r32},
+    {label:'Round of 16',key:'r16',matches:KO.r16},
+    {label:'Quarterfinals',key:'qf',matches:KO.qf},
+    {label:'Semifinals',key:'sf',matches:KO.sf},
+    {label:'Final',key:'final',matches:[{date:'Jul 19',kickoff:'2026-07-19T19:00:00Z',home:'SF W1',away:'SF W2',venue:'MetLife Stadium',city:'East Rutherford, NJ'}]},
   ];
   h+='<div class="kb-wrap"><div class="kbracket">';
   rounds.forEach((rd,ri)=>{
     h+=`<div class="kround"><div class="kround-hdr">${rd.label}</div>`;
     rd.matches.forEach(m=>{
-      const rh=resolveSlot(m.home), ra=resolveSlot(m.away);
-      const sc=getScore(rh.team||m.home, ra.team||m.away);
+      const {home:rh,away:ra,sc}=koResolve(rd.key,m);
       const st=sc?String(sc.status||'').toLowerCase():'';
       const isLive=['live','in_play','1h','2h','ht','et','pen'].includes(st);
       const isFT=['ft','finished','completed'].includes(st);
       const kt=fmtTime(m.kickoff);
-      const meta=`${isLive?'<span class="live-tag">● LIVE</span> · ':isFT?'<span style="color:#4ade80">✓ FT</span> · ':''}${m.date}${kt&&!isFT&&!isLive?' · '+kt:''}`;
+      const pens=sc&&sc.pens?` · pens ${sc.pens[0]}–${sc.pens[1]}`:'';
+      const meta=`${isLive?'<span class="live-tag">● LIVE</span> · ':isFT?`<span style="color:#4ade80">✓ FT</span>${pens} · `:''}${m.date}${kt&&!isFT&&!isLive?' · '+kt:''}`;
       h+=`<div class="kcell">${ri>0?'<span class="kj"></span>':''}<div class="kmatch${isLive?' live':''}">
         ${kTeamRow(rh,ra,sc,'home')}
         ${kTeamRow(ra,rh,sc,'away')}
@@ -1231,7 +1237,68 @@ async function fetchWcData(){
   let r; try{ r=await fetch('/api/wcdata'); }catch{ return; }
   if(!r.ok) return;
   const d=await r.json().catch(()=>null);
-  if(d&&Array.isArray(d.matches)) wcStats=computePlayerStats(d.matches);
+  if(d&&Array.isArray(d.matches)){ wcStats=computePlayerStats(d.matches); indexKO(d.matches); }
+}
+// ── LIVE KNOCKOUT FIXTURES (real teams + scores from openfootball) ─────
+// The static KO bracket only holds bracket-position placeholders; the real
+// matchups and results come from openfootball and are indexed here by
+// round + host-city + Pacific date, so each bracket slot can show the actual
+// teams and score once the draw is decided.
+let wcKO={};
+function koCityTok(s){s=(s||'').toLowerCase();
+  if(s.includes('inglewood')||s.includes('los angeles'))return'LA';
+  if(s.includes('foxborough')||s.includes('boston'))return'BOS';
+  if(s.includes('guadalupe')||s.includes('monterrey'))return'MTY';
+  if(s.includes('houston'))return'HOU';
+  if(s.includes('east rutherford')||s.includes('new york')||s.includes('new jersey'))return'NJ';
+  if(s.includes('arlington')||s.includes('dallas'))return'DAL';
+  if(s.includes('mexico city'))return'MEX';
+  if(s.includes('atlanta'))return'ATL';
+  if(s.includes('santa clara')||s.includes('san francisco'))return'SF';
+  if(s.includes('seattle'))return'SEA';
+  if(s.includes('toronto'))return'TOR';
+  if(s.includes('vancouver'))return'VAN';
+  if(s.includes('miami'))return'MIA';
+  if(s.includes('kansas city'))return'KC';
+  if(s.includes('philadelphia'))return'PHI';
+  if(s.includes('guadalajara')||s.includes('zapopan'))return'GDL';
+  return (s||'?').slice(0,4);
+}
+function ofToUTC(date,time){
+  const mm=String(time||'').match(/UTC([+-])(\d+)/); if(!mm||!date) return null;
+  const off=(mm[1]==='-'?-1:1)*Number(mm[2]);
+  const [hh,mi]=time.split(' ')[0].split(':').map(Number);
+  const [Y,Mo,D]=date.split('-').map(Number);
+  return new Date(Date.UTC(Y,Mo-1,D,hh,mi)-off*3600000).toISOString();
+}
+function indexKO(matches){
+  wcKO={};
+  const rmap={'Round of 32':'r32','Round of 16':'r16','Quarter-final':'qf','Semi-final':'sf','Match for third place':'third','Final':'final'};
+  matches.forEach(m=>{
+    const rk=rmap[m.round]; if(!rk) return;
+    const iso=ofToUTC(m.date,m.time); if(!iso) return;
+    let pd; try{ pd=pacDate(new Date(iso)); }catch{ return; }
+    wcKO[`${rk}|${koCityTok(m.ground)}|${pd}`]={raw1:m.team1,raw2:m.team2,score:m.score||null};
+  });
+}
+// Resolve a bracket slot to its real teams + score, preferring live openfootball
+// data and falling back to group-standings resolution before the draw is set.
+function koResolve(roundKey,slot){
+  const isReal=n=>!!n&&(FLAGS[norm(n)]!=null||/[a-z]/.test(n));
+  let of=null;
+  try{ of=wcKO[`${roundKey}|${koCityTok(slot.city)}|${pacDate(new Date(slot.kickoff))}`]; }catch{}
+  // Resolve each side independently: a real team from openfootball wins; else
+  // fall back to our group-standings/placeholder resolution.
+  const side=(raw,ph)=>(of&&isReal(raw))?{team:norm(raw),label:norm(raw),provisional:false}:resolveSlot(ph);
+  const home=side(of&&of.raw1,slot.home), away=side(of&&of.raw2,slot.away);
+  let sc;
+  if(of&&isReal(of.raw1)&&isReal(of.raw2)){
+    const base=of.score&&(of.score.ft||of.score.et);
+    sc=base?{home_score:base[0],away_score:base[1],status:'finished',pens:of.score.p||null}:getScore(home.team,away.team);
+  } else {
+    sc=getScore(home.team||slot.home,away.team||slot.away);
+  }
+  return {home,away,sc};
 }
 function computePlayerStats(matches){
   const played=matches.filter(m=>m&&m.score&&Array.isArray(m.score.ft));
@@ -1448,39 +1515,32 @@ function renderVenues(){
 }
 
 // ── RENDER: KO ─────────────────────────────────────────
-function renderKo(title,sub,matches,pre){
-  let h=stageHdr(title,sub);
-  const fromGroups=matches.some(m=>/^Group\s+[A-L]\s+(1st|2nd|3rd)$/i.test(m.home)||/^Group\s+[A-L]\s+(1st|2nd|3rd)$/i.test(m.away));
-  if(fromGroups){
-    h+=`<p class="lead">Teams fill in from the live group tables. A <span style="color:var(--gold);font-weight:700">•</span> marks a <strong>provisional</strong> position while that group is still being played — it locks once the group finishes (group stage ends Jun 27). <strong>Best-3rd</strong> slots resolve once all groups are complete.</p>`;
-  }
-  h+='<div class="grid-ko">';
-  matches.forEach((m,i)=>{
-    const rh=resolveSlot(m.home), ra=resolveSlot(m.away);
-    const sc=getScore(rh.team||m.home, ra.team||m.away);
-    const badge=sbadge(sc);
-    h+=`<div class="ko-card"><div class="ko-hdr"><span class="ko-lbl">${pre} ${i+1}</span><span class="ko-date">${m.date}</span></div>
+function koCard(pre,i,m,roundKey){
+  const {home:rh,away:ra,sc}=koResolve(roundKey,m);
+  const badge=sbadge(sc);
+  const pens=sc&&sc.pens?` <span style="font-size:10px;color:var(--gold)">pens ${sc.pens[0]}–${sc.pens[1]}</span>`:'';
+  return `<div class="ko-card"><div class="ko-hdr"><span class="ko-lbl">${pre} ${i+1}</span><span class="ko-date">${m.date}</span></div>
     <div class="ko-team"><span>${slotDisplay(rh,m.home)}</span>${sc&&sc.home_score!=null?`<span class="ko-score">${sc.home_score}</span>`:''}</div>
-    <div class="ko-vs">${badge||'VS'}</div>
+    <div class="ko-vs">${badge||'VS'}${pens}</div>
     <div class="ko-team"><span>${slotDisplay(ra,m.away)}</span>${sc&&sc.away_score!=null?`<span class="ko-score">${sc.away_score}</span>`:''}</div>
     <div class="ko-venue">📍 ${m.venue} · ${m.city}</div></div>`;
-  });
+}
+function renderKo(title,sub,matches,pre,roundKey){
+  let h=stageHdr(title,sub);
+  const anyTBD=matches.some(m=>{const r=koResolve(roundKey,m);return !r.home.team||!r.away.team;});
+  if(anyTBD) h+=`<p class="lead">Matchups and results update live. A slot showing a bracket position (e.g. <strong>Best 3rd</strong> or <strong>R32 W1</strong>) resolves once those earlier matches are played; a <span style="color:var(--gold);font-weight:700">•</span> marks a provisional group position.</p>`;
+  h+='<div class="grid-ko">';
+  matches.forEach((m,i)=>{ h+=koCard(pre,i,m,roundKey); });
   return h+'</div>';
 }
 function renderQF(){
-  return stageHdr('QUARTERFINALS','Jul 9–11 · 4 Matches')+renderKo('','',KO.qf,'QF').replace(/<div [^>]*stage-hdr[^>]*>[^<]*<[^<]*<\/div>/,'');
+  let h=stageHdr('QUARTERFINALS','Jul 9–11 · 4 Matches')+'<div class="grid-ko" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">';
+  KO.qf.forEach((m,i)=>{ h+=koCard('QF',i,m,'qf'); });
+  return h+'</div>';
 }
 function renderSF(){
   let h=stageHdr('SEMIFINALS','Jul 14–15 · 2 Matches')+'<div class="grid-ko" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));margin-bottom:14px">';
-  KO.sf.forEach((m,i)=>{
-    const sc=getScore(m.home,m.away);
-    const badge=sbadge(sc);
-    h+=`<div class="ko-card"><div class="ko-hdr"><span class="ko-lbl">SEMIFINAL ${i+1}</span><span class="ko-date">${m.date}</span></div>
-    <div class="ko-team"><span>${fl(m.home)}</span>${sc&&sc.home_score!=null?`<span class="ko-score">${sc.home_score}</span>`:''}</div>
-    <div class="ko-vs">${badge||'VS'}</div>
-    <div class="ko-team"><span>${fl(m.away)}</span>${sc&&sc.away_score!=null?`<span class="ko-score">${sc.away_score}</span>`:''}</div>
-    <div class="ko-venue">📍 ${m.venue} · ${m.city}</div></div>`;
-  });
+  KO.sf.forEach((m,i)=>{ h+=koCard('SEMIFINAL',i,m,'sf'); });
   h+='</div>';
   h+=`<div style="background:var(--card);border:1px solid var(--card-border);border-radius:7px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--muted)"><strong style="color:var(--gold)">🥉 3rd Place</strong> · Sat Jul 18 · 2:00 PM PT · Hard Rock Stadium · Miami, FL</div>`;
   h+=`<div class="contenders-card"><div class="section-title">📊 TOURNAMENT ODDS</div>`;
@@ -1489,11 +1549,13 @@ function renderSF(){
 }
 function renderFinal(){
   let h=stageHdr('🏆 THE FINAL','Sunday, July 19, 2026 · 12:00 PM PT','gold');
+  const f=koResolve('final',{city:'East Rutherford, NJ',kickoff:'2026-07-19T19:00:00Z',home:'SF W1',away:'SF W2'});
+  const ft=(t,pos)=>{const n=t.team;return `<div class="final-team"><div class="final-flag">${n?(FLAGS[n]||'🏳️'):'🏳️'}</div><div class="final-name">${n||'TBD'}${f.sc&&(f.sc.home_score!=null)?` <span style="color:#4ade80">${pos==='SF Winner 1'?f.sc.home_score:f.sc.away_score}</span>`:''}</div><div class="final-pos">${pos}</div></div>`;};
   h+=`<div class="final-card"><div class="final-sub">FIFA WORLD CUP 2026 FINAL</div>
   <div class="final-teams">
-    <div class="final-team"><div class="final-flag">🏳️</div><div class="final-name">TBD</div><div class="final-pos">SF Winner 1</div></div>
+    ${ft(f.home,'SF Winner 1')}
     <div class="final-vs">VS</div>
-    <div class="final-team"><div class="final-flag">🏳️</div><div class="final-name">TBD</div><div class="final-pos">SF Winner 2</div></div>
+    ${ft(f.away,'SF Winner 2')}
   </div>
   <div class="final-meta">
     <div style="font-size:18px;margin-bottom:3px">🏟️</div>
@@ -1511,21 +1573,6 @@ function stageHdr(title,sub,color){
   const c=color==='gold'?'var(--gold)':'var(--green)';
   const bc=color==='gold'?'#f59e0b':'var(--green)';
   return `<div class="stage-hdr" style="border-left-color:${bc};margin-bottom:16px"><span class="hf" style="font-size:19px;font-weight:800;color:${c}">${title}</span><span style="font-size:12px;color:var(--muted);margin-left:10px">${sub}</span></div>`;
-}
-
-// ── QF (thin wrapper) ──────────────────────────────────
-function renderQF(){
-  let h=stageHdr('QUARTERFINALS','Jul 9–11 · 4 Matches')+'<div class="grid-ko" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">';
-  KO.qf.forEach((m,i)=>{
-    const sc=getScore(m.home,m.away);
-    const badge=sbadge(sc);
-    h+=`<div class="ko-card"><div class="ko-hdr"><span class="ko-lbl">QF ${i+1}</span><span class="ko-date">${m.date}</span></div>
-    <div class="ko-team"><span>${fl(m.home)}</span>${sc&&sc.home_score!=null?`<span class="ko-score">${sc.home_score}</span>`:''}</div>
-    <div class="ko-vs">${badge||'VS'}</div>
-    <div class="ko-team"><span>${fl(m.away)}</span>${sc&&sc.away_score!=null?`<span class="ko-score">${sc.away_score}</span>`:''}</div>
-    <div class="ko-venue">📍 ${m.venue} · ${m.city}</div></div>`;
-  });
-  return h+'</div>';
 }
 
 // ── CALENDAR / ICS ─────────────────────────────────────
@@ -1649,7 +1696,7 @@ function addSingleEvent(home,away,kickoff,venue,city){
     <div style="font-size:12px;color:var(--muted);margin-bottom:10px">${home} vs ${away}</div>
     <div style="background:#071409;border-radius:7px;padding:9px 12px;margin-bottom:10px;border:1px solid #2d5235">
       <div style="font-size:9px;font-weight:700;color:var(--green);letter-spacing:.1em;margin-bottom:3px">💡 SUBSCRIBE TO ALL MATCHES</div>
-      <div style="font-size:11px;color:var(--muted)">Go to the <strong style="color:var(--text)">📅 CALENDAR</strong> tab to subscribe to the full live feed — all 74 matches, auto-updating in iCloud.</div>
+      <div style="font-size:11px;color:var(--muted)">Go to the <strong style="color:var(--text)">📅 CALENDAR</strong> tab to subscribe to the full live feed — all 104 matches, auto-updating in iCloud.</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:7px">
       <a href="${blobUrl}" download="wc2026-match.ics" style="display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:7px;background:#1c3a24;color:#4ade80;border:1px solid #2d5235;font-size:12px;font-weight:600;text-decoration:none">
