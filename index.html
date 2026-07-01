@@ -303,9 +303,9 @@ a{color:var(--gold)}
 .kround:last-child{padding-right:0}
 .kround-hdr{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;padding:0 0 10px 2px}
 .kcell{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center;position:relative;padding:7px 0}
-.kround:not(:last-child) .kcell::after{content:"";position:absolute;right:-18px;top:50%;width:18px;height:2px;background:var(--card-border)}
-.kround:not(:first-child) .kcell::before{content:"";position:absolute;left:-18px;top:25%;width:2px;height:50%;background:var(--card-border)}
-.kj{position:absolute;left:-18px;top:50%;width:18px;height:2px;background:var(--card-border)}
+.kround:not(:last-child) .kcell::after{content:"";position:absolute;right:-18px;top:50%;width:18px;height:2px;background:#3a6b45}
+.kround:not(:first-child) .kcell::before{content:"";position:absolute;left:-18px;top:25%;width:2px;height:50%;background:#3a6b45}
+.kj{position:absolute;left:-18px;top:50%;width:18px;height:2px;background:#3a6b45}
 .kmatch{background:var(--card);border:1px solid var(--card-border);border-radius:11px;padding:9px 12px;transition:border-color .15s}
 .kmatch.live{border-color:#dc262655}
 .kmatch:hover{border-color:#2d5235}
@@ -322,6 +322,16 @@ a{color:var(--gold)}
 .kwin .kname{color:#4ade80}
 .kmeta{font-size:10px;color:var(--dim);margin-top:8px;padding-top:7px;border-top:1px solid #12241f;letter-spacing:.02em}
 .kmeta .live-tag{color:#f87171;font-weight:700}
+.kmatchno{display:inline-block;background:#12241f;color:var(--muted);border-radius:4px;padding:0 5px;margin-right:6px;font-weight:700;font-family:'Barlow Condensed',sans-serif}
+@media(max-width:640px){
+  .kround{min-width:188px;padding-right:14px}
+  .kround:not(:last-child) .kcell::after{right:-14px;width:14px}
+  .kround:not(:first-child) .kcell::before{left:-14px}
+  .kj{left:-14px;width:14px}
+  .kmatch{padding:8px 10px}
+  .kname{font-size:12px}
+  .kflag{font-size:14px;width:18px}
+}
 </style>
 </head>
 <body>
@@ -1203,15 +1213,23 @@ function renderBracket(){
   ];
   h+='<div class="kb-wrap"><div class="kbracket">';
   rounds.forEach((rd,ri)=>{
+    // Resolve every match, then order by the true bracket tree so each card
+    // sits directly between its two real feeders (connectors become meaningful).
+    let items=rd.matches.map(m=>({m,r:koResolve(rd.key,m)}));
+    if(wcOrder[rd.key]&&wcOrder[rd.key].length){
+      const pos=n=>{const i=wcOrder[rd.key].indexOf(n);return i<0?999:i;};
+      items=items.map((it,i)=>({it,i})).sort((a,b)=>pos(a.it.r.num)-pos(b.it.r.num)||a.i-b.i).map(x=>x.it);
+    }
     h+=`<div class="kround"><div class="kround-hdr">${rd.label}</div>`;
-    rd.matches.forEach(m=>{
-      const {home:rh,away:ra,sc}=koResolve(rd.key,m);
+    items.forEach(({m,r})=>{
+      const {home:rh,away:ra,sc}=r;
       const st=sc?String(sc.status||'').toLowerCase():'';
       const isLive=['live','in_play','1h','2h','ht','et','pen'].includes(st);
       const isFT=['ft','finished','completed'].includes(st);
       const kt=fmtTime(m.kickoff);
       const pens=sc&&sc.pens?` · pens ${sc.pens[0]}–${sc.pens[1]}`:'';
-      const meta=`${isLive?'<span class="live-tag">● LIVE</span> · ':isFT?`<span style="color:#4ade80">✓ FT</span>${pens} · `:''}${m.date}${kt&&!isFT&&!isLive?' · '+kt:''}`;
+      const numTag=r.num?`<span class="kmatchno">M${r.num}</span>`:'';
+      const meta=`${numTag}${isLive?'<span class="live-tag">● LIVE</span> · ':isFT?`<span style="color:#4ade80">✓ FT</span>${pens} · `:''}${m.date}${kt&&!isFT&&!isLive?' · '+kt:''}`;
       h+=`<div class="kcell">${ri>0?'<span class="kj"></span>':''}<div class="kmatch${isLive?' live':''}">
         ${kTeamRow(rh,ra,sc,'home')}
         ${kTeamRow(ra,rh,sc,'away')}
@@ -1271,15 +1289,34 @@ function ofToUTC(date,time){
   const [Y,Mo,D]=date.split('-').map(Number);
   return new Date(Date.UTC(Y,Mo-1,D,hh,mi)-off*3600000).toISOString();
 }
+const KO_LV={'Round of 32':1,'Round of 16':2,'Quarter-final':3,'Semi-final':4,'Final':5,'Match for third place':0};
+let wcOrder={}; // {r32:[num,...] in true bracket order, r16:[...], ...}
 function indexKO(matches){
-  wcKO={};
+  wcKO={}; wcOrder={};
   const rmap={'Round of 32':'r32','Round of 16':'r16','Quarter-final':'qf','Semi-final':'sf','Match for third place':'third','Final':'final'};
   matches.forEach(m=>{
     const rk=rmap[m.round]; if(!rk) return;
     const iso=ofToUTC(m.date,m.time); if(!iso) return;
     let pd; try{ pd=pacDate(new Date(iso)); }catch{ return; }
-    wcKO[`${rk}|${koCityTok(m.ground)}|${pd}`]={raw1:m.team1,raw2:m.team2,score:m.score||null};
+    wcKO[`${rk}|${koCityTok(m.ground)}|${pd}`]={num:m.num,raw1:m.team1,raw2:m.team2,score:m.score||null};
   });
+  buildKoOrder(matches);
+}
+// Reconstruct the true bracket order (which matches feed which) from the
+// openfootball match numbers + W##/L## feeder refs, so the connector tree can
+// place each match directly between its two real feeders.
+function buildKoOrder(matches){
+  const ko=matches.filter(m=>KO_LV[m.round]!=null&&m.num!=null);
+  if(!ko.length) return;
+  const byNum={}; ko.forEach(m=>byNum[m.num]=m);
+  const winnerOf=m=>{const b=m.score&&(m.score.ft||m.score.et);if(!b)return null;let s;if(b[0]!==b[1])s=b[0]>b[1]?1:2;else if(m.score&&m.score.p)s=m.score.p[0]>m.score.p[1]?1:2;else return null;return norm(s===1?m.team1:m.team2);};
+  const winIdx={}; ko.forEach(m=>{const lv=KO_LV[m.round];const w=winnerOf(m);if(w)(winIdx[lv]=winIdx[lv]||{})[w]=m.num;});
+  const pnum=(ref,childLv)=>{const w=String(ref).match(/^W(\d+)$/);if(w)return +w[1];const l=String(ref).match(/^L(\d+)$/);if(l)return +l[1];return (winIdx[childLv-1]||{})[norm(ref)]??null;};
+  const parents=m=>{const lv=KO_LV[m.round];return [pnum(m.team1,lv),pnum(m.team2,lv)];};
+  const ord={1:[],2:[],3:[],4:[]};
+  const fin=ko.find(m=>m.round==='Final'); if(!fin) return;
+  (function dfs(m){const lv=KO_LV[m.round];if(lv<=1){if(lv===1)ord[1].push(m.num);return;}parents(m).forEach(p=>{if(p&&byNum[p])dfs(byNum[p]);});if(ord[lv])ord[lv].push(m.num);})(fin);
+  if(ord[1].length===16) wcOrder={r32:ord[1],r16:ord[2],qf:ord[3],sf:ord[4]};
 }
 // Resolve a bracket slot to its real teams + score, preferring live openfootball
 // data and falling back to group-standings resolution before the draw is set.
@@ -1287,9 +1324,14 @@ function koResolve(roundKey,slot){
   const isReal=n=>!!n&&(FLAGS[norm(n)]!=null||/[a-z]/.test(n));
   let of=null;
   try{ of=wcKO[`${roundKey}|${koCityTok(slot.city)}|${pacDate(new Date(slot.kickoff))}`]; }catch{}
-  // Resolve each side independently: a real team from openfootball wins; else
-  // fall back to our group-standings/placeholder resolution.
-  const side=(raw,ph)=>(of&&isReal(raw))?{team:norm(raw),label:norm(raw),provisional:false}:resolveSlot(ph);
+  // Resolve each side independently: real team → use it; W##/L## → "Winner/Loser
+  // of Match ##"; otherwise fall back to group-standings/placeholder resolution.
+  const side=(raw,ph)=>{
+    if(of&&isReal(raw)) return {team:norm(raw),label:norm(raw),provisional:false};
+    const w=of?String(raw||'').match(/^([WL])(\d+)$/):null;
+    if(w) return {team:null,label:`${w[1]==='W'?'Winner':'Loser'} M${w[2]}`};
+    return resolveSlot(ph);
+  };
   const home=side(of&&of.raw1,slot.home), away=side(of&&of.raw2,slot.away);
   let sc;
   if(of&&isReal(of.raw1)&&isReal(of.raw2)){
@@ -1298,7 +1340,7 @@ function koResolve(roundKey,slot){
   } else {
     sc=getScore(home.team||slot.home,away.team||slot.away);
   }
-  return {home,away,sc};
+  return {home,away,sc,num:of?of.num:null};
 }
 function computePlayerStats(matches){
   const played=matches.filter(m=>m&&m.score&&Array.isArray(m.score.ft));
