@@ -295,6 +295,33 @@ a{color:var(--gold)}
   .cd-unit{min-width:46px;padding:6px 10px}
   .cd-num{font-size:26px}
 }
+
+/* ── KALSHI-STYLE BRACKET ───────────────────────────── */
+.kb-wrap{overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch}
+.kbracket{display:flex;align-items:stretch;min-width:min-content}
+.kround{display:flex;flex-direction:column;justify-content:space-around;min-width:230px;padding:0 18px 0 0}
+.kround:last-child{padding-right:0}
+.kround-hdr{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;padding:0 0 10px 2px}
+.kcell{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center;position:relative;padding:7px 0}
+.kround:not(:last-child) .kcell::after{content:"";position:absolute;right:-18px;top:50%;width:18px;height:2px;background:var(--card-border)}
+.kround:not(:first-child) .kcell::before{content:"";position:absolute;left:-18px;top:25%;width:2px;height:50%;background:var(--card-border)}
+.kj{position:absolute;left:-18px;top:50%;width:18px;height:2px;background:var(--card-border)}
+.kmatch{background:var(--card);border:1px solid var(--card-border);border-radius:11px;padding:9px 12px;transition:border-color .15s}
+.kmatch.live{border-color:#dc262655}
+.kmatch:hover{border-color:#2d5235}
+.kteam{padding:5px 0}
+.kteam-top{display:flex;align-items:center;gap:8px}
+.kflag{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.kname{flex:1;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kname.tbd{color:var(--dim);font-weight:500}
+.kscore{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:15px;color:#4ade80;margin-left:6px;flex-shrink:0}
+.kpct{font-size:13px;font-weight:700;color:var(--text);flex-shrink:0;min-width:34px;text-align:right}
+.kpct.dim{color:var(--dim);font-weight:600}
+.ktrack{height:3px;background:#122415;border-radius:2px;margin-top:6px;overflow:hidden}
+.kfill{height:100%;border-radius:2px;transition:width .5s}
+.kwin .kname{color:#4ade80}
+.kmeta{font-size:10px;color:var(--dim);margin-top:8px;padding-top:7px;border-top:1px solid #12241f;letter-spacing:.02em}
+.kmeta .live-tag{color:#f87171;font-weight:700}
 </style>
 </head>
 <body>
@@ -1125,46 +1152,70 @@ function renderStandings(){
 }
 
 // ── RENDER: BRACKET ────────────────────────────────────
+// Implied win % for a resolved matchup, from live odds (American → probability,
+// de-vigged to a 2-way split). Returns {teamName:pct,...} or null if no odds.
+function winProb(a,b){
+  if(!a||!b) return null;
+  const o=oddsMap[a+'_'+b]||oddsMap[b+'_'+a];
+  if(!o||o.home==null||o.away==null) return null;
+  const imp=n=>n>0?100/(n+100):(-n)/((-n)+100);
+  const ph=imp(o.home), pa=imp(o.away), s=ph+pa;
+  if(!s) return null;
+  const map={};
+  map[norm(o.homeTeam)]=ph/s; map[norm(o.awayTeam)]=pa/s;
+  const wa=map[a], wb=map[b];
+  if(wa==null||wb==null) return null;
+  return {[a]:Math.round(wa*100),[b]:Math.round(wb*100)};
+}
+function kTeamRow(r,other,sc,side){
+  const name=r.team||null, isTBD=!name;
+  const prob=(name&&other.team)?winProb(name,other.team):null;
+  const pct=prob?prob[name]:null, oPct=prob?prob[other.team]:null;
+  const fav=pct!=null&&oPct!=null&&pct>=oPct;
+  const myScore=sc?(side==='home'?sc.home_score:sc.away_score):null;
+  const oScore=sc?(side==='home'?sc.away_score:sc.home_score):null;
+  const win=myScore!=null&&oScore!=null&&Number(myScore)>Number(oScore);
+  const fill=fav?'var(--green)':'#7f1d1d';
+  return `<div class="kteam${win?' kwin':''}">
+    <div class="kteam-top">
+      <span class="kflag">${name?(FLAGS[name]||''):''}</span>
+      <span class="kname${isTBD?' tbd':''}">${name||r.label}${name&&r.provisional?' <span style="color:var(--gold)">•</span>':''}</span>
+      ${myScore!=null?`<span class="kscore">${myScore}</span>`:(pct!=null?`<span class="kpct${fav?'':' dim'}">${pct}%</span>`:'')}
+    </div>
+    ${pct!=null?`<div class="ktrack"><div class="kfill" style="width:${pct}%;background:${fill}"></div></div>`:''}
+  </div>`;
+}
 function renderBracket(){
   let h=stageHdr('KNOCKOUT BRACKET','Fills in as the tournament progresses');
-  h+=`<p class="bracket-note">Teams advance from the group stage into the bracket below. Completed results show scores; upcoming matches show the projected path.</p>`;
+  h+=`<p class="bracket-note">Teams populate from the live group tables as each group is decided (a <span style="color:var(--gold);font-weight:700">•</span> marks a provisional position). Win-% bars appear when live odds are available. Scroll sideways to see every round →</p>`;
   const rounds=[
-    {title:'ROUND OF 32 · Jun 28 – Jul 3',matches:KO.r32,pre:'M'},
-    {title:'ROUND OF 16 · Jul 4 – Jul 7',matches:KO.r16,pre:'R16'},
-    {title:'QUARTERFINALS · Jul 9 – 11',matches:KO.qf,pre:'QF'},
-    {title:'SEMIFINALS · Jul 14 – 15',matches:KO.sf,pre:'SF'},
+    {label:'Round of 32',matches:KO.r32},
+    {label:'Round of 16',matches:KO.r16},
+    {label:'Quarterfinals',matches:KO.qf},
+    {label:'Semifinals',matches:KO.sf},
+    {label:'Final',matches:[{date:'Jul 19',kickoff:'2026-07-19T19:00:00Z',home:'SF W1',away:'SF W2',venue:'MetLife Stadium',city:'East Rutherford, NJ'}]},
   ];
-  rounds.forEach(({title,matches,pre})=>{
-    h+=`<div class="bracket-round"><div class="bracket-round-title">${title}</div><div class="bracket-grid">`;
-    matches.forEach((m,i)=>{
+  h+='<div class="kb-wrap"><div class="kbracket">';
+  rounds.forEach((rd,ri)=>{
+    h+=`<div class="kround"><div class="kround-hdr">${rd.label}</div>`;
+    rd.matches.forEach(m=>{
       const rh=resolveSlot(m.home), ra=resolveSlot(m.away);
       const sc=getScore(rh.team||m.home, ra.team||m.away);
-      const badge=sbadge(sc);
-      const hWin=sc&&sc.home_score!=null&&sc.away_score!=null&&Number(sc.home_score)>Number(sc.away_score);
-      const aWin=sc&&sc.home_score!=null&&sc.away_score!=null&&Number(sc.away_score)>Number(sc.home_score);
-      h+=`<div class="bracket-match">
-        <div class="bm-hdr"><span>${pre} ${i+1}</span><span>${m.date}</span></div>
-        <div class="bm-team${hWin?' winner':''}">
-          <span>${slotDisplay(rh,m.home)}</span>
-          ${sc&&sc.home_score!=null?`<span class="bm-score">${sc.home_score}</span>`:''}
-        </div>
-        <div class="bm-team${aWin?' winner':''}">
-          <span>${slotDisplay(ra,m.away)}</span>
-          ${sc&&sc.away_score!=null?`<span class="bm-score">${sc.away_score}</span>`:''}
-        </div>
-        ${badge?`<div style="padding:4px 9px 5px;border-top:1px solid var(--card-border)">${badge}</div>`:''}
-      </div>`;
+      const st=sc?String(sc.status||'').toLowerCase():'';
+      const isLive=['live','in_play','1h','2h','ht','et','pen'].includes(st);
+      const isFT=['ft','finished','completed'].includes(st);
+      const kt=fmtTime(m.kickoff);
+      const meta=`${isLive?'<span class="live-tag">● LIVE</span> · ':isFT?'<span style="color:#4ade80">✓ FT</span> · ':''}${m.date}${kt&&!isFT&&!isLive?' · '+kt:''}`;
+      h+=`<div class="kcell">${ri>0?'<span class="kj"></span>':''}<div class="kmatch${isLive?' live':''}">
+        ${kTeamRow(rh,ra,sc,'home')}
+        ${kTeamRow(ra,rh,sc,'away')}
+        <div class="kmeta">${meta}</div>
+      </div></div>`;
     });
-    h+='</div></div>';
+    h+='</div>';
   });
-  // Final
-  h+=`<div class="bracket-round"><div class="bracket-round-title">🏆 FINAL · Jul 19</div>
-    <div class="bracket-grid" style="max-width:280px">
-    <div class="bracket-match">
-      <div class="bm-hdr"><span>FINAL</span><span>Jul 19</span></div>
-      <div class="bm-team"><span>🏳️ TBD — SF Winner 1</span></div>
-      <div class="bm-team"><span>🏳️ TBD — SF Winner 2</span></div>
-    </div></div></div>`;
+  h+='</div></div>';
+  h+=`<div style="background:var(--card);border:1px solid var(--card-border);border-radius:7px;padding:10px 14px;margin-top:14px;font-size:12px;color:var(--muted);max-width:440px"><strong style="color:var(--gold)">🥉 3rd Place Match</strong> · Sat Jul 18 · 2:00 PM PT · Hard Rock Stadium, Miami</div>`;
   return h;
 }
 
