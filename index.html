@@ -323,18 +323,12 @@ a{color:var(--gold)}
 .kmeta{font-size:10px;color:var(--dim);margin-top:8px;padding-top:7px;border-top:1px solid #12241f;letter-spacing:.02em}
 .kmeta .live-tag{color:#f87171;font-weight:700}
 .kmatchno{display:inline-block;background:#12241f;color:var(--muted);border-radius:4px;padding:0 5px;margin-right:6px;font-weight:700;font-family:'Barlow Condensed',sans-serif}
-/* On phones the horizontal connector tree becomes unreadable (long lines
-   through big gaps, parents scrolled off-screen). Stack rounds vertically
-   as titled sections in a 2-column card grid; the M-number badges + "Winner
-   M##" labels convey who feeds whom, so no connector lines are needed. */
 @media(max-width:640px){
-  .kb-wrap{overflow-x:visible}
-  .kbracket{flex-direction:column;align-items:stretch}
-  .kround{min-width:0;width:100%;padding:0;margin-bottom:20px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-content:start}
-  .kround-hdr{grid-column:1 / -1;font-size:14px;padding:0 0 6px;border-bottom:1px solid var(--card-border);margin-bottom:2px}
-  .kcell{flex:none;padding:0}
-  .kcell::after,.kcell::before,.kj{display:none!important}
-  .kmatch{padding:9px 11px;height:100%}
+  .kround{min-width:188px;padding-right:14px}
+  .kround:not(:last-child) .kcell::after{right:-14px;width:14px}
+  .kround:not(:first-child) .kcell::before{left:-14px}
+  .kj{left:-14px;width:14px}
+  .kmatch{padding:8px 10px}
   .kname{font-size:12px}
   .kflag{font-size:14px;width:18px}
 }
@@ -1209,7 +1203,7 @@ function kTeamRow(r,other,sc,side){
 }
 function renderBracket(){
   let h=stageHdr('KNOCKOUT BRACKET','Fills in as the tournament progresses');
-  h+=`<p class="bracket-note">Each match is numbered (e.g. <strong>M80</strong>); an undecided matchup shows its feeder as <strong>Winner M80</strong>, so you can trace who advances. Teams and scores update live; a <span style="color:var(--gold);font-weight:700">•</span> marks a provisional group position.</p>`;
+  h+=`<p class="bracket-note">Each match is numbered (e.g. <strong>M80</strong>); an undecided matchup shows its feeder as <strong>Winner M80</strong>, so you can trace who advances. Teams and scores update live; a <span style="color:var(--gold);font-weight:700">•</span> marks a provisional group position. Scroll sideways to see every round →</p>`;
   const rounds=[
     {label:'Round of 32',key:'r32',matches:KO.r32},
     {label:'Round of 16',key:'r16',matches:KO.r16},
