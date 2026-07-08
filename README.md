@@ -6,6 +6,22 @@ Live scores · Group standings · Knockout bracket · Stats · Venues · iCloud 
 
 -----
 
+## 🌿 Forager's Atlas
+
+This repo also hosts a standalone **Forager's Atlas** at [`/foraging.html`](foraging.html) — a safety-first, region-based reference to wild **edible & medicinal plants**.
+
+- **Pick a region/territory** (21 regions across 6 continents) and see every plant that grows there
+- **Search by name, use, or ailment** (e.g. "cough", "sore throat", "blood pressure")
+- Filter by **use** (food / medicine) and **season**
+- Each plant has **identification notes, colour-coded toxic look-alike warnings, benefits, and recipes** to make food and medicine, plus dosage cautions and sustainable-harvest notes
+- 80+ plants · 95+ recipes & remedies · zero dependencies, pure HTML/CSS/JS
+
+Data lives in [`forage-data.js`](forage-data.js) — add plants by appending to the `FORAGE_DATA` array (schema documented at the top of the file).
+
+> ⚠️ **Educational use only.** Never eat or medicate with a wild plant without in-person expert confirmation — several listed species have deadly look-alikes. Not medical advice.
+
+-----
+
 ## Features
 
 |Feature          |Details                                              |
