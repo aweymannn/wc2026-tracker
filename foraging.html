@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>🌿 Forager's Atlas — Edible & Medicinal Plants by Region</title>
 <meta name="description" content="Look up any region and discover its wild edible & medicinal plants — with identification, benefits, and recipes to make food and medicine. Safety-first foraging reference."/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#26512a"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Forager's Atlas"/>
+<link rel="apple-touch-icon" href="forage-icon.svg"/>
+<link rel="icon" href="forage-icon.svg" type="image/svg+xml"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
@@ -192,11 +200,88 @@ footer{background:#26512a;color:#c8ddc2;padding:26px 20px;text-align:center;font
 footer a{color:var(--gold-lt)}
 footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bottom:6px}
 
+/* ── TOOLBAR (actions) ──────────────────────────────── */
+#toolbar{max-width:1180px;margin:10px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tbtn{font-size:12.5px;padding:8px 13px;border-radius:9px;border:1.5px solid var(--card-border);background:var(--card);color:var(--ink-soft);font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:all .12s}
+.tbtn:hover{border-color:var(--green-lt);color:var(--ink)}
+.tbtn.on{background:var(--green);color:#fff;border-color:var(--green)}
+.tbtn.warn{border-color:#e3b9b0;color:var(--danger-dk)}
+.tbtn.warn:hover{background:#f7ece8}
+#install-btn{display:none}
+
+/* ── AILMENT QUICK ROW ──────────────────────────────── */
+#ailments{max-width:1180px;margin:10px auto 0;padding:0 20px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.ail{font-size:12px;padding:6px 12px;border-radius:16px;border:1px dashed var(--card-border);background:transparent;color:var(--ink-soft);transition:all .12s}
+.ail:hover{border-style:solid;border-color:var(--berry);color:var(--berry)}
+.ail.on{background:var(--berry);color:#fff;border-color:var(--berry);border-style:solid}
+
+.chip.on.part{background:var(--green-dk);border-color:var(--green-dk)}
+.chip.on.cons{background:#3d6344;border-color:#3d6344}
+.filter-sep{width:100%;height:0}
+
+/* ── CALENDAR VIEW ──────────────────────────────────── */
+#calendar{display:none}
+#calendar.show{display:block}
+.cal-lead{font-size:13px;color:var(--ink-soft);margin-bottom:14px}
+.cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.cal-month{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;text-align:left;transition:all .12s;box-shadow:var(--shadow)}
+.cal-month:hover{border-color:var(--green-lt);transform:translateY(-2px)}
+.cal-month.now{border-color:var(--gold);box-shadow:0 0 0 2px #c98a2b33}
+.cal-month h4{font-family:'Fraunces',serif;font-size:17px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline}
+.cal-month .cal-n{font-size:12px;color:var(--ink-dim);font-weight:600}
+.cal-month .cal-ic{margin-top:8px;font-size:17px;line-height:1.4;letter-spacing:2px;min-height:24px}
+.cal-month .cal-season{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--green);font-weight:700;margin-top:6px}
+
+/* ── FAVOURITE STAR ─────────────────────────────────── */
+.fav-star{position:absolute;top:8px;left:8px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.85);border:1px solid var(--card-border);display:flex;align-items:center;justify-content:center;font-size:16px;color:#c9b896;z-index:2;transition:all .12s}
+.fav-star:hover{transform:scale(1.1)}
+.fav-star.on{color:var(--gold);background:#fffdf7}
+
+/* ── DETAIL: photos, actions ────────────────────────── */
+#detail-hd .dhd-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.dact{font-size:12px;font-weight:600;padding:6px 11px;border-radius:8px;background:rgba(255,255,255,.16);color:#fff;display:inline-flex;align-items:center;gap:5px;transition:background .12s}
+.dact:hover{background:rgba(255,255,255,.28)}
+.dact.on{background:var(--gold);color:#2a1a00}
+.photo-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.photo-strip img{width:84px;height:84px;object-fit:cover;border-radius:9px;border:1px solid var(--card-border);cursor:pointer;background:var(--paper2)}
+.photo-credit{font-size:11px;color:var(--ink-dim);margin-top:8px}
+.photo-credit a{color:var(--green)}
+.dloading{font-size:12px;color:var(--ink-dim);margin-top:8px}
+
+/* ── COMPARE (safety) look block with illustration ──── */
+.cmp{display:flex;gap:12px;align-items:stretch;margin-bottom:12px;background:var(--card);border:1px solid var(--card-border);border-radius:12px;overflow:hidden}
+.cmp .cmp-il{width:92px;flex-shrink:0;background:var(--paper2);border-right:1px solid var(--card-border)}
+.cmp .cmp-il svg{width:100%;height:100%;display:block}
+.cmp .cmp-body{padding:11px 13px;flex:1;min-width:0}
+.cmp .cmp-body h4{font-family:'Fraunces',serif;font-size:16px;margin-bottom:2px}
+.cmp .cmp-body .cmp-lat{font-style:italic;font-size:11.5px;color:var(--ink-dim);margin-bottom:6px}
+
+/* ── GENERIC MODAL (safety / checklist) ─────────────── */
+.gmodal-ov{position:fixed;inset:0;background:rgba(31,26,16,.6);backdrop-filter:blur(3px);z-index:250;display:none;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto}
+.gmodal-ov.show{display:flex}
+.gmodal{background:var(--paper);width:100%;max-width:720px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.35);margin:auto;overflow:hidden;animation:pop .18s ease}
+.gmodal-hd{background:linear-gradient(150deg,var(--danger),var(--danger-dk));color:#fff;padding:20px 24px;position:relative}
+.gmodal-hd.calm{background:linear-gradient(150deg,#3f7d3a,#26512a)}
+.gmodal-hd h2{font-family:'Fraunces',serif;font-size:23px;font-weight:900}
+.gmodal-hd p{font-size:12.5px;opacity:.92;margin-top:4px}
+.gmodal-bd{padding:20px 24px 26px;max-height:70vh;overflow-y:auto}
+.gmodal-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;font-size:19px;display:flex;align-items:center;justify-content:center}
+.poison-bar{background:#fff1ee;border:1px solid #e3b9b0;border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.poison-bar b{color:var(--danger-dk)}
+.poison-bar a{background:var(--danger);color:#fff;padding:8px 14px;border-radius:8px;font-weight:700;text-decoration:none;font-size:13px}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
+.checklist li{display:flex;gap:11px;align-items:flex-start;font-size:14px;line-height:1.5;background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:11px 13px}
+.checklist input{margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:var(--green)}
+.safety-group-title{font-family:'Fraunces',serif;font-weight:900;font-size:14px;letter-spacing:.04em;text-transform:uppercase;margin:18px 0 10px;color:var(--danger-dk)}
+.safety-group-title:first-child{margin-top:0}
+
 @media(max-width:640px){
   #controls-inner{flex-direction:column;align-items:stretch}
   #region-select,.search-wrap{min-width:0;width:100%}
   #detail-body{padding:0 18px 22px}
-  #detail-hd{padding:20px}
+  #detail-hd{padding:20px;flex-direction:column}
+  #detail-hd .d-illus{margin-top:0;order:-1}
+  .cmp .cmp-il{width:72px}
 }
 </style>
 </head>
@@ -248,7 +333,39 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     <button class="chip" data-filter="season" data-value="summer">Summer</button>
     <button class="chip" data-filter="season" data-value="autumn">Autumn</button>
     <button class="chip" data-filter="season" data-value="winter">Winter</button>
+    <span class="filter-sep"></span>
+    <span class="chip-label">Part</span>
+    <button class="chip" data-filter="part" data-value="leaf">Leaves</button>
+    <button class="chip" data-filter="part" data-value="root">Roots</button>
+    <button class="chip" data-filter="part" data-value="berry">Berries / Fruit</button>
+    <button class="chip" data-filter="part" data-value="flower">Flowers</button>
+    <button class="chip" data-filter="part" data-value="seed">Seeds / Nuts</button>
+    <span class="chip-label" style="margin-left:8px">Status</span>
+    <button class="chip" data-filter="cons" data-value="invasive">♻ Invasive (forage freely)</button>
+    <button class="chip" data-filter="cons" data-value="at-risk">🛡 At-risk (protect)</button>
     <button id="clear-filters">Clear all</button>
+  </div>
+  <div id="ailments">
+    <span class="chip-label">Ailment</span>
+    <button class="ail" data-ail="cough">Cough</button>
+    <button class="ail" data-ail="sore throat">Sore throat</button>
+    <button class="ail" data-ail="cold">Cold &amp; flu</button>
+    <button class="ail" data-ail="digest">Digestion</button>
+    <button class="ail" data-ail="skin">Skin</button>
+    <button class="ail" data-ail="sleep">Sleep &amp; calm</button>
+    <button class="ail" data-ail="inflammation">Pain &amp; inflammation</button>
+    <button class="ail" data-ail="urinary">Urinary / UTI</button>
+    <button class="ail" data-ail="immune">Immune</button>
+    <button class="ail" data-ail="wound">Wounds &amp; bites</button>
+  </div>
+  <div id="toolbar">
+    <button class="tbtn" id="near-btn">📍 Near me</button>
+    <button class="tbtn" id="season-btn">🗓 In season now</button>
+    <button class="tbtn" id="calendar-btn">📅 Calendar</button>
+    <button class="tbtn" id="fav-btn">☆ Saved</button>
+    <button class="tbtn warn" id="safety-btn">⚠️ Safety guide</button>
+    <button class="tbtn" id="photos-btn">📷 Photos: on</button>
+    <button class="tbtn" id="install-btn">⬇ Install app</button>
   </div>
 </div>
 
@@ -265,6 +382,10 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     <h3>No matches</h3>
     <p>Try a different region, clear your filters, or broaden your search.</p>
   </div>
+  <div id="calendar">
+    <div class="cal-lead" id="cal-lead"></div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
 </main>
 
 <!-- DETAIL MODAL -->
@@ -278,6 +399,7 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
         <div class="dlatin" id="d-latin"></div>
         <div class="dalso" id="d-also"></div>
         <div class="dfam" id="d-fam"></div>
+        <div class="dhd-actions" id="d-actions"></div>
       </div>
       <div class="d-illus" id="d-illus"></div>
     </div>
@@ -299,6 +421,49 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     </ul>
     <p style="font-size:12.5px;color:var(--ink-dim)">By continuing you acknowledge you use this information at your own risk.</p>
     <button class="accept" onclick="closeDisclaimer()">I understand — continue</button>
+  </div>
+</div>
+
+<!-- SAFETY GUIDE MODAL -->
+<div class="gmodal-ov" id="safety-ov" onclick="if(event.target===this)closeSafety()">
+  <div class="gmodal" role="dialog" aria-modal="true">
+    <div class="gmodal-hd">
+      <button class="gmodal-close" onclick="closeSafety()" aria-label="Close">✕</button>
+      <h2>⚠️ Deadly &amp; toxic look-alikes</h2>
+      <p>The dangerous confusions to learn before you forage. If in any doubt — do not eat it.</p>
+    </div>
+    <div class="gmodal-bd">
+      <div class="poison-bar">
+        <b>☎ Suspected poisoning?</b>
+        <span style="font-size:12.5px">US Poison Control (24/7): </span>
+        <a href="tel:18002221222">1-800-222-1222</a>
+        <span style="font-size:12px;color:var(--ink-dim)">Elsewhere: call your local poison centre or emergency services immediately.</span>
+      </div>
+      <div id="safety-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BEFORE YOU EAT CHECKLIST MODAL -->
+<div class="gmodal-ov" id="check-ov" onclick="if(event.target===this)closeChecklist()">
+  <div class="gmodal" role="dialog" aria-modal="true" style="max-width:560px">
+    <div class="gmodal-hd calm">
+      <button class="gmodal-close" onclick="closeChecklist()" aria-label="Close">✕</button>
+      <h2 id="check-title">✅ Before you eat</h2>
+      <p>Run through every point. All must be true before you taste anything wild.</p>
+    </div>
+    <div class="gmodal-bd">
+      <ul class="checklist">
+        <li><input type="checkbox"/><span>A qualified local expert has confirmed this exact plant <strong>in person</strong> — not just an app or a photo.</span></li>
+        <li><input type="checkbox"/><span>I have ruled out every toxic look-alike listed for this plant.</span></li>
+        <li><input type="checkbox"/><span>It was gathered from clean ground — no roadsides, spraying, or polluted water.</span></li>
+        <li><input type="checkbox"/><span>I have prepared it correctly (cooked/leached/processed as required).</span></li>
+        <li><input type="checkbox"/><span>I'm trying only <strong>one</strong> new plant, in a <strong>small</strong> amount, to check for a reaction.</span></li>
+        <li><input type="checkbox"/><span>No one eating it is pregnant, breastfeeding, a young child, or on medication this could interact with (or I've checked with a professional).</span></li>
+        <li><input type="checkbox"/><span>I know who to call if something goes wrong (poison control / emergency services).</span></li>
+      </ul>
+      <p style="font-size:12.5px;color:var(--ink-dim);margin-top:14px">This checklist is guidance, not a guarantee. When unsure, don't.</p>
+    </div>
   </div>
 </div>
 
@@ -330,7 +495,80 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     "asia-tropical":"The tropical and monsoon lands of South & Southeast Asia — a deep tradition of food-as-medicine.",
   };
 
-  var state = { region: "", search: "", use: null, seasons: new Set() };
+  var state = { region: "", search: "", use: null, seasons: new Set(), parts: new Set(), cons: null, inSeason: false, favOnly: false, view: "grid" };
+
+  /* ---- small storage helpers ---- */
+  function lsGet(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } }
+  function lsSet(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+
+  /* ---- favourites ---- */
+  var favs = new Set(lsGet("forage_favs") || []);
+  function isFav(id){ return favs.has(id); }
+  function toggleFav(id){ if (favs.has(id)) favs.delete(id); else favs.add(id); lsSet("forage_favs", Array.from(favs)); updateFavBtn(); }
+  function updateFavBtn(){ var b=document.getElementById("fav-btn"); if(b) b.textContent = (state.favOnly?"★ Saved (":"☆ Saved (")+favs.size+")"; }
+
+  /* ---- photos preference ---- */
+  var photosEnabled = lsGet("forage_photos") !== false; // default on
+
+  /* ---- season / hemisphere ---- */
+  var hemisphere = lsGet("forage_hemi") || "N";
+  var SEASON_MONTHS_N = { spring:[2,3,4], summer:[5,6,7], autumn:[8,9,10], winter:[11,0,1] };
+  function monthsForSeason(s){
+    var m = SEASON_MONTHS_N[s] || [];
+    if (hemisphere === "S") m = m.map(function(x){ return (x+6)%12; });
+    return m;
+  }
+  function currentMonth(){ return new Date().getMonth(); }
+  function seasonForMonth(m){
+    for (var s in SEASON_MONTHS_N){ if (monthsForSeason(s).indexOf(m) !== -1) return s; }
+    return "spring";
+  }
+  var MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  /* ---- part categories ---- */
+  function partCats(p){
+    var t = (p.parts||[]).join(" ").toLowerCase();
+    var out = {};
+    if (/leaf|leaves|frond|green|shoot|stalk|stem|tops|blade|crown|top/.test(t)) out.leaf = 1;
+    if (/root|rhizome|tuber|bulb|taproot/.test(t)) out.root = 1;
+    if (/berr|fruit|hip|haw|pod|drupe|cone \(|sloe|grape|haws/.test(t)) out.berry = 1;
+    if (/flower|blossom|bud|petal|umbel|calyc|calyx/.test(t)) out.flower = 1;
+    if (/seed|nut|kernel|grain|acorn|pollen/.test(t)) out.seed = 1;
+    return out;
+  }
+
+  /* ---- conservation status (inferred) ---- */
+  function consOf(p){
+    var s = ((p.sustainable||"") + " " + (p.cautions||[]).join(" ")).toLowerCase();
+    if (/invasive/.test(s)) return "invasive";
+    if (/at-risk|conservation-critical|cites|over-?harvest|over-?dug|over-?picked|poached|threatened|slow-growing and cultur|declining/.test(s)) return "at-risk";
+    return null;
+  }
+
+  /* ---- ailment keyword expansion ---- */
+  var AILMENTS = {
+    "cough":"cough","sore throat":"throat","cold":"cold flu fever","digest":"digest stomach bloat gas indigestion colic nausea gut",
+    "skin":"skin eczema rash acne wound psoriasis itch","sleep":"sleep anxiety calm calming nervous stress relax",
+    "inflammation":"inflammation pain ache arthritis joint muscle sprain bruise","urinary":"urinary uti bladder kidney diuretic",
+    "immune":"immune antiviral cold flu antibacterial antimicrobial","wound":"wound bite sting cut bleeding styptic burn"
+  };
+
+  /* ---- region bounding boxes for geolocation (approximate) ---- */
+  var REGION_BOXES = [
+    ["na-pnw",42,49,-125,-116],["na-california",32,42.5,-125,-114],["na-southwest",28,37.5,-116,-101],
+    ["na-rockies",36,49,-116,-104.5],["na-southeast",24,37,-95,-75],["na-midwest",36,49,-104.5,-80],
+    ["na-eastern",37,48,-80,-66],["na-boreal",49,72,-142,-52],
+    ["eu-britain",49.5,61,-11,2],["eu-nordic",55,72,4,32],["eu-mediterranean",29,45,-10,36],
+    ["eu-western",43,55,-5.5,20],["eu-eastern",44,62,20,62],
+    ["au-tropical",-30,-10,128,154],["au-temperate",-44,-30,138,155],["nz",-48,-33,165,179],
+    ["asia-temperate",30,47,100,147],["asia-tropical",-11,30,90,131],
+    ["africa",-35,17,-18,52],["south-america",-56,13,-82,-33]
+  ];
+  function regionForCoords(lat, lon){
+    for (var i=0;i<REGION_BOXES.length;i++){ var b=REGION_BOXES[i];
+      if (lat>=b[1] && lat<=b[2] && lon>=b[3] && lon<=b[4]) return b[0]; }
+    return "global";
+  }
 
   /* ---- populate region dropdown ---- */
   var sel = document.getElementById("region-select");
@@ -362,20 +600,33 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
   function hasDeadly(p){ return (p.lookalikes||[]).some(function(l){return l.danger==="deadly";}); }
   function hasToxicLook(p){ return (p.lookalikes||[]).some(function(l){return l.danger==="deadly"||l.danger==="toxic";}); }
 
-  function matches(p){
+  function matches(p, ignoreSeason){
     if (state.region && (p.regions||[]).indexOf(state.region) === -1) return false;
+    if (state.favOnly && !favs.has(p.id)) return false;
     if (state.use === "food" && !(p.type==="edible"||p.type==="both")) return false;
     if (state.use === "medicinal" && !(p.type==="medicinal"||p.type==="both")) return false;
-    if (state.seasons.size){
-      var ok = (p.seasons||[]).some(function(s){return state.seasons.has(s);});
-      if (!ok) return false;
+    if (state.cons && consOf(p) !== state.cons) return false;
+    if (state.parts.size){
+      var pc = partCats(p);
+      var okp = false; state.parts.forEach(function(x){ if (pc[x]) okp = true; });
+      if (!okp) return false;
+    }
+    if (!ignoreSeason){
+      if (state.inSeason){
+        var cs = seasonForMonth(currentMonth());
+        if ((p.seasons||[]).indexOf(cs) === -1) return false;
+      }
+      if (state.seasons.size){
+        var ok = (p.seasons||[]).some(function(s){return state.seasons.has(s);});
+        if (!ok) return false;
+      }
     }
     if (state.search){
       var q = state.search.toLowerCase();
       var hay = [
         p.common, (p.also||[]).join(" "), p.latin, p.family, p.taste,
         (p.parts||[]).join(" "), (p.habitats||[]).join(" "),
-        (p.benefits||[]).join(" "), p.id_notes,
+        (p.benefits||[]).join(" "), (p.cautions||[]).join(" "), p.id_notes,
         (p.recipes||[]).map(function(r){return r.name;}).join(" ")
       ].join(" ").toLowerCase();
       if (hay.indexOf(q) === -1) return false;
@@ -392,19 +643,28 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
   /* ---- render grid ---- */
   var grid = document.getElementById("grid");
   function render(){
-    var list = DATA.filter(matches);
-    // sort: deadly-lookalike plants keep their place; alpha by common name
+    writeHash();
+    if (state.view === "calendar"){ renderCalendar(); }
+    document.getElementById("calendar").classList.toggle("show", state.view==="calendar");
+    grid.style.display = state.view==="calendar" ? "none" : "";
+
+    var list = DATA.filter(function(p){ return matches(p); });
     list.sort(function(a,b){ return a.common.localeCompare(b.common); });
 
+    var extra = [];
+    if (state.favOnly) extra.push("saved");
+    if (state.inSeason) extra.push("in season now");
     document.getElementById("result-count").textContent =
-      list.length + (list.length===1?" plant":" plants");
+      list.length + (list.length===1?" plant":" plants") + (extra.length?(" · "+extra.join(" · ")):"");
     var title = state.region ? (RLABELS[state.region]||"Region") : "All plants";
-    document.getElementById("result-title").textContent = title;
+    document.getElementById("result-title").textContent = state.view==="calendar" ? "Foraging calendar" : title;
 
     var descEl = document.getElementById("region-desc");
     var desc = REGION_DESC[state.region];
-    if (desc){ descEl.textContent = desc; descEl.style.display="block"; }
+    if (desc && state.view!=="calendar"){ descEl.textContent = desc; descEl.style.display="block"; }
     else { descEl.style.display="none"; }
+
+    if (state.view === "calendar"){ document.getElementById("empty").style.display="none"; return; }
 
     if (!list.length){
       grid.innerHTML=""; document.getElementById("empty").style.display="block"; return;
@@ -418,9 +678,12 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
         ? '<div class="warn-flag">⚠️ '+(hasDeadly(p)?"Has a DEADLY look-alike":"Has a toxic look-alike")+' — see ID notes</div>'
         : '';
       var illus = (window.forageIllustration ? window.forageIllustration(p,{label:false}) : "");
+      var starOn = isFav(p.id) ? " on" : "";
       return ''+
         '<button class="pcard" data-i="'+DATA.indexOf(p)+'">'+
-          '<div class="pcard-plate">'+illus+'</div>'+
+          '<div class="pcard-plate">'+illus+
+            '<span class="fav-star'+starOn+'" data-fav="'+esc(p.id)+'" title="Save">'+(isFav(p.id)?"★":"☆")+'</span>'+
+          '</div>'+
           '<div class="pcard-top">'+
             '<div class="pcard-icon">'+esc(p.icon||"🌿")+'</div>'+
             '<div class="pcard-titles">'+
@@ -438,9 +701,42 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
   }
 
   grid.addEventListener("click", function(e){
+    var star = e.target.closest(".fav-star");
+    if (star){ e.stopPropagation(); toggleFav(star.getAttribute("data-fav")); render(); return; }
     var card = e.target.closest(".pcard");
     if (card) openDetail(DATA[+card.getAttribute("data-i")]);
   });
+
+  /* ---- calendar view ---- */
+  function renderCalendar(){
+    var lead = document.getElementById("cal-lead");
+    var scope = state.region ? (RLABELS[state.region]||"this region") : "everywhere";
+    lead.innerHTML = "What you can harvest month by month" + (state.region?(" in <strong>"+esc(RLABELS[state.region])+"</strong>"):" (all regions)") +
+      ". Tap a month to see its plants. Hemisphere: <strong>"+(hemisphere==="S"?"Southern":"Northern")+"</strong>.";
+    var base = DATA.filter(function(p){ return matches(p, true); });
+    var g = document.getElementById("cal-grid");
+    var cm = currentMonth();
+    g.innerHTML = MONTH_NAMES.map(function(name, m){
+      var inMonth = base.filter(function(p){ return (p.seasons||[]).some(function(s){ return monthsForSeason(s).indexOf(m)!==-1; }); });
+      var icons = inMonth.slice(0,7).map(function(p){ return esc(p.icon||"🌿"); }).join("");
+      return '<button class="cal-month'+(m===cm?" now":"")+'" data-month="'+m+'">'+
+        '<h4>'+name+(m===cm?' <span class="cal-n">now</span>':'')+'</h4>'+
+        '<div class="cal-season">'+seasonForMonth(m)+'</div>'+
+        '<div class="cal-ic">'+(icons||"—")+'</div>'+
+        '<div class="cal-n">'+inMonth.length+" plant"+(inMonth.length===1?"":"s")+'</div>'+
+      '</button>';
+    }).join("");
+    Array.prototype.forEach.call(g.querySelectorAll(".cal-month"), function(btn){
+      btn.addEventListener("click", function(){
+        var m = +btn.getAttribute("data-month");
+        state.seasons = new Set([seasonForMonth(m)]);
+        state.inSeason = false; state.view = "grid";
+        syncControls();
+        window.scrollTo({top:0,behavior:"smooth"});
+        render();
+      });
+    });
+  }
 
   /* ---- detail modal ---- */
   function chips(arr){ return (arr||[]).map(function(x){return '<span class="tlg">'+esc(x)+'</span>';}).join(""); }
@@ -476,7 +772,12 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     }).join("");
   }
 
+  var curPlant = null;
+  var openPlantId = null;
+
   function openDetail(p){
+    if (typeof p === "string"){ p = DATA.filter(function(x){return x.id===p;})[0]; if(!p) return; }
+    curPlant = p; openPlantId = p.id; window.__forageCurrent = p;
     document.getElementById("d-illus").innerHTML = (window.forageIllustration ? window.forageIllustration(p,{label:false}) : "");
     document.getElementById("d-icon").textContent = p.icon||"🌿";
     document.getElementById("d-name").textContent = p.common;
@@ -484,6 +785,12 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     document.getElementById("d-also").textContent = (p.also&&p.also.length)?("Also: "+p.also.join(", ")):"";
     document.getElementById("d-fam").textContent = "Family: "+p.family+"  ·  "+
       (p.type==="both"?"Edible + Medicinal":p.type==="edible"?"Edible":"Medicinal");
+
+    // header actions
+    var acts = '<button class="dact'+(isFav(p.id)?" on":"")+'" id="d-fav">'+(isFav(p.id)?"★ Saved":"☆ Save")+'</button>'+
+               '<button class="dact" id="d-share">🔗 Copy link</button>';
+    if (p.type==="edible"||p.type==="both") acts += '<button class="dact" id="d-check">✅ Before you eat</button>';
+    document.getElementById("d-actions").innerHTML = acts;
 
     var regionNames = (p.regions||[]).map(function(r){return RLABELS[r]||r;});
     var body = "";
@@ -500,9 +807,10 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     body += '<div class="dsec"><div class="dsec-title"><span class="em">📍</span>Regions where it grows</div>'+
       '<div class="tag-list">'+chips(regionNames)+'</div></div>';
 
-    // Identification + lookalikes
+    // Identification + photos + lookalikes
     body += '<div class="dsec"><div class="dsec-title"><span class="em">🔍</span>How to identify it</div>'+
-      '<div class="id-box">'+esc(p.id_notes)+'</div>';
+      '<div class="id-box">'+esc(p.id_notes)+'</div>'+
+      '<div id="d-loading" class="dloading"></div><div id="d-photos"></div>';
     if (p.lookalikes && p.lookalikes.length){
       body += '<div class="dsec-title" style="margin-top:16px"><span class="em">⚠️</span>Look-alikes &amp; how to tell them apart</div>'+
         renderLookalikes(p.lookalikes);
@@ -535,18 +843,106 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     }
 
     document.getElementById("detail-body").innerHTML = body;
+
+    // wire header actions
+    document.getElementById("d-fav").addEventListener("click", function(){
+      toggleFav(p.id); this.classList.toggle("on", isFav(p.id));
+      this.textContent = isFav(p.id) ? "★ Saved" : "☆ Save";
+    });
+    document.getElementById("d-share").addEventListener("click", function(){ shareLink(p, this); });
+    var chk = document.getElementById("d-check");
+    if (chk) chk.addEventListener("click", function(){ openChecklist(p); });
+
     var ov = document.getElementById("overlay");
     ov.classList.add("show");
     ov.scrollTop = 0;
     document.getElementById("detail").scrollTop = 0;
     document.body.style.overflow = "hidden";
+    writeHash();
+
+    if (photosEnabled) loadPhotos(p);
   }
   function metaItem(k,v){ if(!v) return ""; return '<div class="meta-item"><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>'; }
 
   window.closeDetail = function(){
     document.getElementById("overlay").classList.remove("show");
     document.body.style.overflow = "";
+    curPlant = null; openPlantId = null; writeHash();
   };
+
+  /* ---- reference photos (Wikipedia REST, graceful fallback) ---- */
+  var PHOTO_MEM = {};
+  function photoTitle(p){
+    var t = (p.latin||"").split("/")[0].trim();
+    t = t.replace(/\s+(spp\.?|agg\.?|sp\.?)$/i, "").trim();
+    return t;
+  }
+  function loadPhotos(p){
+    var title = photoTitle(p);
+    var loadingEl = document.getElementById("d-loading");
+    if (!title){ if(loadingEl) loadingEl.textContent=""; return; }
+    if (loadingEl) loadingEl.textContent = "Loading reference photos…";
+    fetchPhotos(title).then(function(imgs){
+      if (!curPlant || curPlant.id !== p.id) return; // user moved on
+      if (loadingEl) loadingEl.textContent = "";
+      if (imgs && imgs.length){ setHeaderPhoto(p, imgs[0]); renderPhotoStrip(p, imgs); }
+    }).catch(function(){ if(loadingEl) loadingEl.textContent=""; });
+  }
+  function fetchPhotos(title){
+    if (PHOTO_MEM[title]) return Promise.resolve(PHOTO_MEM[title]);
+    var ck = "forage_ph_" + title;
+    var cached = lsGet(ck);
+    if (cached && cached.t && (Date.now()-cached.t < 1000*60*60*24*30)){ PHOTO_MEM[title]=cached.v; return Promise.resolve(cached.v); }
+    if (typeof fetch !== "function") return Promise.resolve([]);
+    var base = "https://en.wikipedia.org/api/rest_v1/page/";
+    var enc = encodeURIComponent(title.replace(/ /g,"_"));
+    var imgs = [];
+    return fetch(base+"summary/"+enc).then(function(r){ return r.ok?r.json():null; }).then(function(j){
+      if (j){
+        if (j.thumbnail && j.thumbnail.source) imgs.push(j.thumbnail.source);
+        else if (j.originalimage && j.originalimage.source) imgs.push(j.originalimage.source);
+      }
+      return fetch(base+"media-list/"+enc).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; });
+    }).then(function(m){
+      if (m && m.items){
+        m.items.forEach(function(it){
+          if (it.type==="image" && it.srcset && it.srcset.length){
+            var src = it.srcset[0].src; if (src && src.indexOf("//")===0) src = "https:"+src;
+            if (src && !/\.svg/i.test(src) && imgs.indexOf(src)===-1) imgs.push(src);
+          }
+        });
+      }
+      imgs = imgs.slice(0,5);
+      PHOTO_MEM[title]=imgs; lsSet(ck,{t:Date.now(),v:imgs});
+      return imgs;
+    }).catch(function(){ return imgs; });
+  }
+  function setHeaderPhoto(p, url){
+    var box = document.getElementById("d-illus");
+    if (!box) return;
+    var svg = (window.forageIllustration ? window.forageIllustration(p,{label:false}) : "");
+    box.innerHTML = '<img src="'+esc(url)+'" alt="'+esc(p.common)+'" style="width:100%;height:100%;object-fit:cover" '+
+      'data-fb="'+esc(svg)+'" onerror="this.parentNode.innerHTML=this.getAttribute(\'data-fb\')">';
+  }
+  window.__forageSwap = function(src){ if (curPlant) setHeaderPhoto(curPlant, src); };
+  function renderPhotoStrip(p, imgs){
+    var el = document.getElementById("d-photos");
+    if (!el) return;
+    if (!imgs.length){ el.innerHTML=""; return; }
+    el.innerHTML = '<div class="photo-strip">'+imgs.map(function(u){
+      return '<img loading="lazy" src="'+esc(u)+'" alt="'+esc(p.common)+'" onerror="this.remove()" onclick="window.__forageSwap(this.src)">';
+    }).join("")+'</div>'+
+    '<div class="photo-credit">📷 Reference photos via <a href="https://commons.wikimedia.org" target="_blank" rel="noopener">Wikimedia/Wikipedia</a> — helpful, but always confirm ID with a local expert in person.</div>';
+  }
+
+  /* ---- share / deep link ---- */
+  function shareLink(p, btn){
+    openPlantId = p.id; writeHash();
+    var url = location.href;
+    var done = function(){ if(btn){ var o=btn.textContent; btn.textContent="✓ Copied!"; setTimeout(function(){ btn.textContent=o; },1500); } };
+    if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done, done); }
+    else { try { var ta=document.createElement("textarea"); ta.value=url; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); done(); } catch(e){} }
+  }
 
   /* ---- disclaimer ---- */
   window.openDisclaimer = function(){ document.getElementById("disc-overlay").classList.add("show"); document.body.style.overflow="hidden"; };
@@ -556,50 +952,178 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     try{ localStorage.setItem("forage_disc_v1","1"); }catch(e){}
   };
 
+  /* ---- safety guide modal ---- */
+  function byName(a,b){ return a.common.localeCompare(b.common); }
+  function cmpCard(p){
+    var il = window.forageIllustration ? window.forageIllustration(p,{label:false}) : "";
+    return '<div class="cmp" data-open="'+esc(p.id)+'">'+
+      '<div class="cmp-il">'+il+'</div>'+
+      '<div class="cmp-body"><h4>'+esc(p.common)+'</h4><div class="cmp-lat">'+esc(p.latin)+'</div>'+
+        renderLookalikes(p.lookalikes)+
+      '</div></div>';
+  }
+  function renderSafety(){
+    var deadly = DATA.filter(hasDeadly).sort(byName);
+    var toxicOnly = DATA.filter(function(p){ return !hasDeadly(p) && hasToxicLook(p); }).sort(byName);
+    var html = '<div class="safety-group-title">☠ Plants with DEADLY look-alikes ('+deadly.length+')</div>' +
+      deadly.map(cmpCard).join("") +
+      '<div class="safety-group-title">Plants with toxic look-alikes ('+toxicOnly.length+')</div>' +
+      toxicOnly.map(cmpCard).join("");
+    var el = document.getElementById("safety-list");
+    el.innerHTML = html;
+    Array.prototype.forEach.call(el.querySelectorAll(".cmp"), function(c){
+      c.addEventListener("click", function(){ closeSafety(); openDetail(c.getAttribute("data-open")); });
+    });
+  }
+  window.openSafety = function(){ renderSafety(); document.getElementById("safety-ov").classList.add("show"); document.body.style.overflow="hidden"; };
+  window.closeSafety = function(){ document.getElementById("safety-ov").classList.remove("show"); if(!document.getElementById("overlay").classList.contains("show")) document.body.style.overflow=""; };
+
+  /* ---- checklist modal ---- */
+  window.openChecklist = function(p){
+    var t = document.getElementById("check-title");
+    t.textContent = p ? ("✅ Before you eat " + p.common) : "✅ Before you eat";
+    Array.prototype.forEach.call(document.querySelectorAll("#check-ov input"), function(i){ i.checked=false; });
+    document.getElementById("check-ov").classList.add("show"); document.body.style.overflow="hidden";
+  };
+  window.closeChecklist = function(){ document.getElementById("check-ov").classList.remove("show"); if(!document.getElementById("overlay").classList.contains("show")) document.body.style.overflow=""; };
+
+  /* ---- reflect state onto controls ---- */
+  var searchEl = document.getElementById("search");
+  function syncControls(){
+    sel.value = state.region;
+    if (searchEl.value !== state.search) searchEl.value = state.search;
+    document.querySelectorAll('.chip[data-filter="use"]').forEach(function(c){
+      var on = c.getAttribute("data-value")===state.use;
+      c.classList.toggle("on", on);
+      c.classList.toggle("food", on && c.getAttribute("data-value")==="food");
+      c.classList.toggle("med", on && c.getAttribute("data-value")==="medicinal");
+    });
+    document.querySelectorAll('.chip[data-filter="season"]').forEach(function(c){ c.classList.toggle("on", state.seasons.has(c.getAttribute("data-value"))); });
+    document.querySelectorAll('.chip[data-filter="part"]').forEach(function(c){ var on=state.parts.has(c.getAttribute("data-value")); c.classList.toggle("on",on); c.classList.toggle("part",on); });
+    document.querySelectorAll('.chip[data-filter="cons"]').forEach(function(c){ var on=state.cons===c.getAttribute("data-value"); c.classList.toggle("on",on); c.classList.toggle("cons",on); });
+    document.querySelectorAll(".ail").forEach(function(c){ c.classList.toggle("on", AILMENTS[c.getAttribute("data-ail")]===state.search); });
+    document.getElementById("season-btn").classList.toggle("on", state.inSeason);
+    document.getElementById("calendar-btn").classList.toggle("on", state.view==="calendar");
+    var pb = document.getElementById("photos-btn"); pb.textContent = "📷 Photos: "+(photosEnabled?"on":"off"); pb.classList.toggle("on", photosEnabled);
+    updateFavBtn();
+  }
+
+  /* ---- hash routing (shareable deep links) ---- */
+  function writeHash(){
+    var parts = [];
+    if (state.region) parts.push("region="+encodeURIComponent(state.region));
+    if (state.search) parts.push("q="+encodeURIComponent(state.search));
+    if (state.use) parts.push("use="+state.use);
+    if (state.cons) parts.push("cons="+state.cons);
+    if (state.parts.size) parts.push("part="+Array.from(state.parts).join(","));
+    if (state.seasons.size) parts.push("season="+Array.from(state.seasons).join(","));
+    if (state.inSeason) parts.push("inseason=1");
+    if (state.favOnly) parts.push("saved=1");
+    if (state.view==="calendar") parts.push("view=calendar");
+    if (openPlantId) parts.push("plant="+encodeURIComponent(openPlantId));
+    var h = parts.length ? ("#"+parts.join("&")) : (location.pathname+location.search);
+    try { history.replaceState(null, "", h); } catch(e){}
+  }
+  function readHash(){
+    var h = location.hash.replace(/^#/, ""); var o = {};
+    if (!h) return o;
+    h.split("&").forEach(function(kv){ var i=kv.indexOf("="); if(i>0) o[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1)); });
+    return o;
+  }
+  function applyHash(){
+    var o = readHash();
+    state.region = o.region || "";
+    state.search = o.q || "";
+    state.use = (o.use==="food"||o.use==="medicinal") ? o.use : null;
+    state.cons = (o.cons==="invasive"||o.cons==="at-risk") ? o.cons : null;
+    state.parts = new Set(o.part ? o.part.split(",") : []);
+    state.seasons = new Set(o.season ? o.season.split(",") : []);
+    state.inSeason = o.inseason==="1";
+    state.favOnly = o.saved==="1";
+    state.view = o.view==="calendar" ? "calendar" : "grid";
+    syncControls();
+    render();
+    if (o.plant){ openDetail(o.plant); } else if (!o.plant && document.getElementById("overlay").classList.contains("show")){ closeDetail(); }
+  }
+
   /* ---- events ---- */
   sel.addEventListener("change", function(){ state.region = sel.value; render(); });
-  var searchEl = document.getElementById("search");
   var t;
   searchEl.addEventListener("input", function(){
-    clearTimeout(t); t=setTimeout(function(){ state.search = searchEl.value.trim(); render(); }, 120);
+    clearTimeout(t); t=setTimeout(function(){ state.search = searchEl.value.trim(); syncControls(); render(); }, 120);
   });
 
   document.querySelectorAll(".chip[data-filter]").forEach(function(chip){
     chip.addEventListener("click", function(){
       var f = chip.getAttribute("data-filter"), v = chip.getAttribute("data-value");
-      if (f==="use"){
-        if (state.use===v){ state.use=null; }
-        else { state.use=v; }
-        document.querySelectorAll('.chip[data-filter="use"]').forEach(function(c){
-          var on = c.getAttribute("data-value")===state.use;
-          c.classList.toggle("on", on);
-          c.classList.toggle("food", on && c.getAttribute("data-value")==="food");
-          c.classList.toggle("med", on && c.getAttribute("data-value")==="medicinal");
-        });
-      } else if (f==="season"){
-        if (state.seasons.has(v)) state.seasons.delete(v); else state.seasons.add(v);
-        chip.classList.toggle("on");
-      }
-      render();
+      if (f==="use"){ state.use = (state.use===v) ? null : v; }
+      else if (f==="season"){ if (state.seasons.has(v)) state.seasons.delete(v); else state.seasons.add(v); }
+      else if (f==="part"){ if (state.parts.has(v)) state.parts.delete(v); else state.parts.add(v); }
+      else if (f==="cons"){ state.cons = (state.cons===v) ? null : v; }
+      syncControls(); render();
+    });
+  });
+
+  document.querySelectorAll(".ail").forEach(function(a){
+    a.addEventListener("click", function(){
+      var key = a.getAttribute("data-ail"), q = AILMENTS[key] || key;
+      state.search = (state.search===q) ? "" : q;
+      state.use = state.search ? "medicinal" : state.use;
+      syncControls(); render();
     });
   });
 
   document.getElementById("clear-filters").addEventListener("click", function(){
-    state.use=null; state.seasons.clear();
-    document.querySelectorAll(".chip[data-filter]").forEach(function(c){ c.classList.remove("on","food","med"); });
-    render();
+    state.use=null; state.cons=null; state.seasons.clear(); state.parts.clear();
+    state.inSeason=false; state.favOnly=false; state.search="";
+    syncControls(); render();
   });
 
-  document.addEventListener("keydown", function(e){
-    if (e.key==="Escape"){ closeDetail(); }
+  document.getElementById("season-btn").addEventListener("click", function(){ state.inSeason=!state.inSeason; syncControls(); render(); });
+  document.getElementById("calendar-btn").addEventListener("click", function(){ state.view = state.view==="calendar"?"grid":"calendar"; syncControls(); render(); });
+  document.getElementById("fav-btn").addEventListener("click", function(){ state.favOnly=!state.favOnly; syncControls(); render(); });
+  document.getElementById("safety-btn").addEventListener("click", function(){ openSafety(); });
+  document.getElementById("photos-btn").addEventListener("click", function(){ photosEnabled=!photosEnabled; lsSet("forage_photos", photosEnabled); syncControls(); if (photosEnabled && curPlant) loadPhotos(curPlant); });
+
+  document.getElementById("near-btn").addEventListener("click", function(){
+    var btn=this, orig=btn.textContent;
+    if (!navigator.geolocation){ btn.textContent="📍 Not supported"; setTimeout(function(){btn.textContent=orig;},1800); return; }
+    btn.textContent="📍 Locating…";
+    navigator.geolocation.getCurrentPosition(function(pos){
+      var lat=pos.coords.latitude, lon=pos.coords.longitude;
+      hemisphere = lat<0 ? "S" : "N"; lsSet("forage_hemi", hemisphere);
+      var rid = regionForCoords(lat, lon);
+      state.region = rid; sel.value = rid;
+      btn.textContent="📍 "+(RLABELS[rid]||"Region");
+      setTimeout(function(){ btn.textContent=orig; },2500);
+      syncControls(); render();
+    }, function(){ btn.textContent="📍 Location blocked"; setTimeout(function(){btn.textContent=orig;},1800); }, {timeout:8000, maximumAge:600000});
   });
+
+  window.addEventListener("hashchange", applyHash);
+
+  document.addEventListener("keydown", function(e){
+    if (e.key==="Escape"){
+      if (document.getElementById("check-ov").classList.contains("show")) return closeChecklist();
+      if (document.getElementById("safety-ov").classList.contains("show")) return closeSafety();
+      closeDetail();
+    }
+  });
+
+  /* ---- PWA: install prompt + service worker ---- */
+  var deferredPrompt = null;
+  window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); deferredPrompt=e; var b=document.getElementById("install-btn"); if(b) b.style.display="inline-flex"; });
+  document.getElementById("install-btn").addEventListener("click", function(){ if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt=null; this.style.display="none"; } });
+  if ("serviceWorker" in navigator){ window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); }); }
 
   /* ---- first-run disclaimer ---- */
   try{
     if (localStorage.getItem("forage_disc_v1")!=="1") openDisclaimer();
   }catch(e){ openDisclaimer(); }
 
-  render();
+  /* ---- boot: apply any deep link, else default render ---- */
+  if (location.hash){ applyHash(); }
+  else { syncControls(); render(); }
 })();
 </script>
 </body>
