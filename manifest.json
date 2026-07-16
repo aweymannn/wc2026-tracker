@@ -1,0 +1,15 @@
+{
+  "name": "Forager's Atlas — Edible & Medicinal Plants",
+  "short_name": "Forager's Atlas",
+  "description": "Look up any region and discover its wild edible & medicinal plants — identification, benefits, and recipes to make food and medicine. Safety-first, works offline.",
+  "start_url": "./foraging.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#26512a",
+  "theme_color": "#26512a",
+  "categories": ["education", "health", "lifestyle", "reference"],
+  "icons": [
+    { "src": "forage-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
