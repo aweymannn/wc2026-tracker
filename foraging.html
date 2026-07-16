@@ -275,6 +275,94 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
 .safety-group-title{font-family:'Fraunces',serif;font-weight:900;font-size:14px;letter-spacing:.04em;text-transform:uppercase;margin:18px 0 10px;color:var(--danger-dk)}
 .safety-group-title:first-child{margin-top:0}
 
+/* ── METHODS GLOSSARY ───────────────────────────────── */
+.gm-entry{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.gm-entry h4{font-family:'Fraunces',serif;font-size:17px;margin-bottom:2px;display:flex;gap:8px;align-items:center}
+.gm-entry .gm-what{font-size:12.5px;color:var(--ink-dim);margin-bottom:8px}
+.gm-entry ol{padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.gm-entry ol li{font-size:13px;line-height:1.5}
+.gm-entry .gm-use{font-size:12.5px;background:#eef3ea;border-left:3px solid var(--green-lt);padding:7px 11px;border-radius:0 8px 8px 0;color:var(--ink-soft);margin-top:9px}
+.methods-link{font-size:12.5px;color:var(--green);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;margin-left:8px;font-weight:600}
+
+/* ── FIELD JOURNAL ──────────────────────────────────── */
+.jform{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+.jform textarea{background:var(--card);border:1.5px solid var(--card-border);border-radius:10px;padding:10px 13px;font-size:14px;font-family:inherit;color:var(--ink);min-height:74px;resize:vertical}
+.jform textarea:focus{outline:none;border-color:var(--green)}
+.jform .jsave{background:var(--green);color:#fff;font-weight:700;font-size:14px;padding:10px 16px;border-radius:9px;align-self:flex-start}
+.jform .jsave:hover{background:var(--green-dk)}
+.jentry{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.jentry .j-top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.jentry .j-plant{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--green-dk);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0}
+.jentry .j-date{font-size:11.5px;color:var(--ink-dim)}
+.jentry .j-del{margin-left:auto;font-size:11.5px;color:var(--danger-dk);text-decoration:underline}
+.jentry .j-note{font-size:13.5px;margin-top:6px;line-height:1.5;white-space:pre-wrap}
+.j-empty{font-size:13.5px;color:var(--ink-dim);text-align:center;padding:20px}
+
+/* ── PRINT FIELD GUIDE ──────────────────────────────── */
+#print-root{display:none}
+@media print{
+  body>*{display:none !important}
+  body>#print-root{display:block !important}
+  body{background:#fff;color:#000}
+  #print-root{font-family:Georgia,serif;font-size:11pt;color:#000}
+  .pr-hd{border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:14px}
+  .pr-hd h1{font-size:19pt;margin:0}
+  .pr-hd .pr-sub{font-size:9.5pt;color:#333;margin-top:3px}
+  .pr-warn{border:1.5px solid #000;padding:7px 10px;font-size:9pt;margin-bottom:14px;font-weight:bold}
+  .pr-plant{border:1px solid #999;border-radius:6px;padding:10px 12px;margin-bottom:10px;page-break-inside:avoid}
+  .pr-plant h2{font-size:13pt;margin:0 0 1px}
+  .pr-plant .pr-lat{font-style:italic;font-size:9.5pt;color:#333;margin-bottom:5px}
+  .pr-plant .pr-meta{font-size:9pt;margin-bottom:5px}
+  .pr-plant .pr-id{font-size:9.5pt;line-height:1.45;margin-bottom:5px}
+  .pr-plant .pr-look{font-size:9pt;line-height:1.4;padding:5px 8px;border:1px solid #666;margin-top:4px}
+  .pr-plant .pr-look.deadly{border:2px solid #000;font-weight:bold}
+  .pr-plant .pr-caut{font-size:8.5pt;color
+
+/* ── METHODS GLOSSARY ───────────────────────────────── */
+.method{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.method:last-child{margin-bottom:0}
+.method h4{font-family:'Fraunces',serif;font-size:17px;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.method .m-what{font-size:12px;color:var(--ink-dim);font-weight:600;margin-bottom:7px;letter-spacing:.02em}
+.method p{font-size:13.5px;line-height:1.55;color:var(--ink)}
+.method .m-use{font-size:12.5px;color:var(--green-dk);margin-top:6px}
+
+/* ── JOURNAL ────────────────────────────────────────── */
+.jentry{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+.jentry .j-il{width:64px;height:64px;flex-shrink:0;border-radius:8px;overflow:hidden;background:var(--paper2);border:1px solid var(--card-border)}
+.jentry .j-il svg{width:100%;height:100%}
+.jentry .j-body{flex:1;min-width:0}
+.jentry .j-body h4{font-family:'Fraunces',serif;font-size:16px;cursor:pointer}
+.jentry .j-meta{font-size:11.5px;color:var(--ink-dim);margin:2px 0 5px}
+.jentry .j-note{font-size:13px;color:var(--ink);line-height:1.5}
+.jentry .j-del{margin-left:auto;color:var(--danger);font-size:12px;background:none;text-decoration:underline;flex-shrink:0}
+.jform{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.jform textarea,.jform input{font-family:inherit;font-size:13.5px;border:1.5px solid var(--card-border);border-radius:9px;padding:9px 11px;background:var(--card);color:var(--ink);width:100%}
+.jform textarea{min-height:60px;resize:vertical}
+.jform .jrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.jsave{background:var(--green);color:#fff;font-weight:700;padding:9px 16px;border-radius:9px;font-size:13.5px}
+.jempty{text-align:center;color:var(--ink-dim);padding:24px 0}
+
+/* ── PRINT FIELD GUIDE ──────────────────────────────── */
+@media print{
+  #safety-bar,#hero .stat-row,#controls,#toolbar,#ailments,#filters,footer,.fav-star,
+  #overlay,.gmodal-ov,#disc-overlay,#install-btn{display:none !important}
+  body{background:#fff;color:#000}
+  #hero{background:#fff;color:#000;border-bottom:2px solid #333;padding:0}
+  #hero .sprig,#hero .leafmark{display:none}
+  #hero h1{color:#000;font-size:26px;margin:0}
+  #hero p.tag{color:#333}
+  #main{max-width:100%;padding:0}
+  #result-head{margin:10px 0}
+  .grid{display:block !important}
+  .pcard{display:flex !important;flex-direction:row !important;page-break-inside:avoid;box-shadow:none;border:1px solid #999;border-radius:8px;margin-bottom:8px;transform:none !important}
+  .pcard-plate{width:120px;flex-shrink:0;aspect-ratio:auto;height:120px;border-right:1px solid #ccc;border-bottom:none}
+  .pcard-body .badges,.warn-flag{display:flex}
+  .pcard h3{font-size:15px}
+  #calendar{display:none !important}
+  a[href]:after{content:""}
+}
+.print-hint{display:none}
+
 @media(max-width:640px){
   #controls-inner{flex-direction:column;align-items:stretch}
   #region-select,.search-wrap{min-width:0;width:100%}
@@ -363,6 +451,9 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     <button class="tbtn" id="season-btn">🗓 In season now</button>
     <button class="tbtn" id="calendar-btn">📅 Calendar</button>
     <button class="tbtn" id="fav-btn">☆ Saved</button>
+    <button class="tbtn" id="journal-btn">📓 Journal</button>
+    <button class="tbtn" id="methods-btn">⚗️ Methods</button>
+    <button class="tbtn" id="print-btn">🖨 Field guide</button>
     <button class="tbtn warn" id="safety-btn">⚠️ Safety guide</button>
     <button class="tbtn" id="photos-btn">📷 Photos: on</button>
     <button class="tbtn" id="install-btn">⬇ Install app</button>
@@ -464,6 +555,30 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
       </ul>
       <p style="font-size:12.5px;color:var(--ink-dim);margin-top:14px">This checklist is guidance, not a guarantee. When unsure, don't.</p>
     </div>
+  </div>
+</div>
+
+<!-- PREPARATION METHODS GLOSSARY -->
+<div class="gmodal-ov" id="methods-ov" onclick="if(event.target===this)closeMethods()">
+  <div class="gmodal" role="dialog" aria-modal="true">
+    <div class="gmodal-hd calm">
+      <button class="gmodal-close" onclick="closeMethods()" aria-label="Close">✕</button>
+      <h2>⚗️ How to make herbal preparations</h2>
+      <p>The core methods behind the recipes — what each one is and when to use it.</p>
+    </div>
+    <div class="gmodal-bd" id="methods-list"></div>
+  </div>
+</div>
+
+<!-- FIELD JOURNAL -->
+<div class="gmodal-ov" id="journal-ov" onclick="if(event.target===this)closeJournal()">
+  <div class="gmodal" role="dialog" aria-modal="true">
+    <div class="gmodal-hd calm">
+      <button class="gmodal-close" onclick="closeJournal()" aria-label="Close">✕</button>
+      <h2>📓 Field journal</h2>
+      <p>Your logged finds — saved on this device only.</p>
+    </div>
+    <div class="gmodal-bd" id="journal-list"></div>
   </div>
 </div>
 
@@ -788,6 +903,7 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
 
     // header actions
     var acts = '<button class="dact'+(isFav(p.id)?" on":"")+'" id="d-fav">'+(isFav(p.id)?"★ Saved":"☆ Save")+'</button>'+
+               '<button class="dact" id="d-log">📓 Log find</button>'+
                '<button class="dact" id="d-share">🔗 Copy link</button>';
     if (p.type==="edible"||p.type==="both") acts += '<button class="dact" id="d-check">✅ Before you eat</button>';
     document.getElementById("d-actions").innerHTML = acts;
@@ -828,7 +944,9 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     // Recipes
     if (p.recipes && p.recipes.length){
       body += '<div class="dsec"><div class="dsec-title"><span class="em">🧪</span>Recipes — food &amp; medicine</div>'+
-        renderRecipes(p.recipes)+'</div>';
+        renderRecipes(p.recipes)+
+        '<div style="margin-top:10px;font-size:12.5px"><a href="#" id="d-methods-link">⚗️ New to tinctures, decoctions &amp; salves? See how each preparation works →</a></div>'+
+        '</div>';
     }
 
     // Cautions
@@ -850,8 +968,11 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
       this.textContent = isFav(p.id) ? "★ Saved" : "☆ Save";
     });
     document.getElementById("d-share").addEventListener("click", function(){ shareLink(p, this); });
+    document.getElementById("d-log").addEventListener("click", function(){ openJournal(p); });
     var chk = document.getElementById("d-check");
     if (chk) chk.addEventListener("click", function(){ openChecklist(p); });
+    var ml = document.getElementById("d-methods-link");
+    if (ml) ml.addEventListener("click", function(e){ e.preventDefault(); openMethods(); });
 
     var ov = document.getElementById("overlay");
     ov.classList.add("show");
@@ -987,6 +1108,93 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
   };
   window.closeChecklist = function(){ document.getElementById("check-ov").classList.remove("show"); if(!document.getElementById("overlay").classList.contains("show")) document.body.style.overflow=""; };
 
+  /* ---- preparation methods glossary ---- */
+  var METHODS = [
+    { icon:"🍵", name:"Infusion (tea)", what:"Steep leaves/flowers in just-boiled water, covered.",
+      body:"Pour hot (not always boiling) water over the dried or fresh herb, cover to trap the volatile oils, and steep 5–15 minutes. The gold-standard for delicate aerial parts — leaves and flowers.",
+      use:"Best for: leaves & flowers (mint, chamomile, nettle, elderflower)." },
+    { icon:"🫕", name:"Decoction", what:"Simmer tough roots/bark in water 15–45 min.",
+      body:"Hard materials won't give up their constituents in a quick steep. Simmer them gently (lid on) to extract deeply, then strain. Longer and hotter than an infusion.",
+      use:"Best for: roots, bark, berries, mushrooms (burdock, dandelion root, chaga, reishi)." },
+    { icon:"🫙", name:"Tincture", what:"Steep herb in alcohol for weeks; take by drops.",
+      body:"Pack a jar with the herb, cover with 40%+ spirit (vodka), seal, shake daily for 4–6 weeks, then strain. Alcohol extracts compounds water can't, and the result keeps for years. Dose is small — drops to a teaspoon.",
+      use:"Best for: potent/long-keeping remedies (hawthorn, echinacea, usnea)." },
+    { icon:"🍯", name:"Syrup", what:"Strong decoction/infusion + honey or sugar.",
+      body:"Make a strong tea or decoction, strain, then stir in roughly an equal volume of honey or sugar to preserve it. Soothing and easy to dose by the spoonful; refrigerate.",
+      use:"Best for: coughs & colds (elderberry, rosehip, wild cherry, violet)." },
+    { icon:"🧴", name:"Infused oil", what:"Steep dried herb in oil for weeks.",
+      body:"Cover dried herb with a stable oil (olive) and infuse 2–6 weeks (or gently warm for hours). Strain. Use dried material — water in fresh herb can spoil the oil. The base for salves.",
+      use:"Best for: skin & muscle remedies (St John's wort, arnica, mullein flower)." },
+    { icon:"🪔", name:"Salve", what:"Infused oil thickened with beeswax.",
+      body:"Warm an infused oil and melt in beeswax (about 1 part wax to 4–5 parts oil) until it sets to a balm. Portable and long-lasting for topical use.",
+      use:"Best for: cuts, chapped skin, sore muscles (plantain, comfrey, calendula)." },
+    { icon:"🌿", name:"Poultice", what:"Crushed fresh herb applied to the skin.",
+      body:"Mash or chew fresh plant material and apply it directly to a sting, bite, splinter, or bruise, refreshing as needed. The simplest field remedy of all.",
+      use:"Best for: bites, stings, wounds (plantain, chickweed, yarrow)." },
+    { icon:"🍶", name:"Oxymel", what:"Herb steeped in honey + vinegar.",
+      body:"Combine honey and raw vinegar (often with pungent herbs) and steep. A tangy-sweet way to take otherwise sharp herbs, good for coughs and immunity.",
+      use:"Best for: pungent/immune herbs (wild garlic, sage, elderberry)." },
+  ];
+  function renderMethods(){
+    document.getElementById("methods-list").innerHTML = METHODS.map(function(m){
+      return '<div class="method"><h4>'+m.icon+' '+esc(m.name)+'</h4>'+
+        '<div class="m-what">'+esc(m.what)+'</div>'+
+        '<p>'+esc(m.body)+'</p>'+
+        '<div class="m-use">'+esc(m.use)+'</div></div>';
+    }).join("");
+  }
+  window.openMethods = function(){ renderMethods(); document.getElementById("methods-ov").classList.add("show"); document.body.style.overflow="hidden"; };
+  window.closeMethods = function(){ document.getElementById("methods-ov").classList.remove("show"); if(!document.getElementById("overlay").classList.contains("show")) document.body.style.overflow=""; };
+
+  /* ---- field journal ---- */
+  function getJournal(){ return lsGet("forage_journal") || []; }
+  function setJournal(j){ lsSet("forage_journal", j); updateJournalBtn(); }
+  function updateJournalBtn(){ var b=document.getElementById("journal-btn"); if(b){ var n=getJournal().length; b.textContent="📓 Journal"+(n?(" ("+n+")"):""); } }
+  function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  window.openJournal = function(addPlant){
+    var j = getJournal();
+    var html = "";
+    if (addPlant){
+      html += '<div class="jform" id="jform">'+
+        '<div style="font-weight:600;font-size:14px">Log a find: '+esc(addPlant.common)+'</div>'+
+        '<div class="jrow"><input type="date" id="j-date" value="'+todayStr()+'" style="max-width:170px"><input type="text" id="j-place" placeholder="Where did you find it? (optional)"></div>'+
+        '<textarea id="j-notes" placeholder="Notes — quantity, habitat, how it looked, what you made…"></textarea>'+
+        '<div><button class="jsave" id="j-save">Save to journal</button></div>'+
+      '</div>';
+    }
+    if (!j.length && !addPlant){ html += '<div class="jempty">No finds logged yet. Open any plant and tap <strong>📓 Log find</strong> to start your journal.</div>'; }
+    html += j.slice().reverse().map(function(e){
+      var p = DATA.filter(function(x){return x.id===e.id;})[0];
+      var il = p && window.forageIllustration ? window.forageIllustration(p,{label:false}) : (e.icon||"🌿");
+      return '<div class="jentry">'+
+        '<div class="j-il" data-open="'+esc(e.id)+'">'+il+'</div>'+
+        '<div class="j-body">'+
+          '<h4 data-open="'+esc(e.id)+'">'+esc(e.plant)+'</h4>'+
+          '<div class="j-meta">'+esc(e.date||"")+(e.place?(" · "+esc(e.place)):"")+'</div>'+
+          (e.notes?'<div class="j-note">'+esc(e.notes)+'</div>':'')+
+        '</div>'+
+        '<button class="j-del" data-del="'+e.ts+'">Delete</button>'+
+      '</div>';
+    }).join("");
+    var el = document.getElementById("journal-list");
+    el.innerHTML = html;
+    var saveBtn = document.getElementById("j-save");
+    if (saveBtn){ saveBtn.addEventListener("click", function(){
+      var entry = { id:addPlant.id, plant:addPlant.common, latin:addPlant.latin, icon:addPlant.icon,
+        date:document.getElementById("j-date").value||todayStr(), place:document.getElementById("j-place").value.trim(),
+        notes:document.getElementById("j-notes").value.trim(), ts:Date.now() };
+      var arr=getJournal(); arr.push(entry); setJournal(arr); openJournal(); // re-render list only
+    }); }
+    Array.prototype.forEach.call(el.querySelectorAll("[data-del]"), function(b){
+      b.addEventListener("click", function(){ var arr=getJournal().filter(function(x){return String(x.ts)!==b.getAttribute("data-del");}); setJournal(arr); openJournal(addPlant); });
+    });
+    Array.prototype.forEach.call(el.querySelectorAll("[data-open]"), function(b){
+      b.addEventListener("click", function(){ closeJournal(); openDetail(b.getAttribute("data-open")); });
+    });
+    document.getElementById("journal-ov").classList.add("show"); document.body.style.overflow="hidden";
+  };
+  window.closeJournal = function(){ document.getElementById("journal-ov").classList.remove("show"); if(!document.getElementById("overlay").classList.contains("show")) document.body.style.overflow=""; };
+
   /* ---- reflect state onto controls ---- */
   var searchEl = document.getElementById("search");
   function syncControls(){
@@ -1005,7 +1213,7 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
     document.getElementById("season-btn").classList.toggle("on", state.inSeason);
     document.getElementById("calendar-btn").classList.toggle("on", state.view==="calendar");
     var pb = document.getElementById("photos-btn"); pb.textContent = "📷 Photos: "+(photosEnabled?"on":"off"); pb.classList.toggle("on", photosEnabled);
-    updateFavBtn();
+    updateFavBtn(); updateJournalBtn();
   }
 
   /* ---- hash routing (shareable deep links) ---- */
@@ -1083,6 +1291,9 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
   document.getElementById("calendar-btn").addEventListener("click", function(){ state.view = state.view==="calendar"?"grid":"calendar"; syncControls(); render(); });
   document.getElementById("fav-btn").addEventListener("click", function(){ state.favOnly=!state.favOnly; syncControls(); render(); });
   document.getElementById("safety-btn").addEventListener("click", function(){ openSafety(); });
+  document.getElementById("methods-btn").addEventListener("click", function(){ openMethods(); });
+  document.getElementById("journal-btn").addEventListener("click", function(){ openJournal(); });
+  document.getElementById("print-btn").addEventListener("click", function(){ window.print(); });
   document.getElementById("photos-btn").addEventListener("click", function(){ photosEnabled=!photosEnabled; lsSet("forage_photos", photosEnabled); syncControls(); if (photosEnabled && curPlant) loadPhotos(curPlant); });
 
   document.getElementById("near-btn").addEventListener("click", function(){
@@ -1105,6 +1316,8 @@ footer .ftitle{font-family:'Fraunces',serif;color:#fff;font-size:16px;margin-bot
   document.addEventListener("keydown", function(e){
     if (e.key==="Escape"){
       if (document.getElementById("check-ov").classList.contains("show")) return closeChecklist();
+      if (document.getElementById("methods-ov").classList.contains("show")) return closeMethods();
+      if (document.getElementById("journal-ov").classList.contains("show")) return closeJournal();
       if (document.getElementById("safety-ov").classList.contains("show")) return closeSafety();
       closeDetail();
     }
