@@ -55,33 +55,38 @@ jobs:
           echo "Namespace id: $ID"
           echo "id=$ID" >> "$GITHUB_OUTPUT"
 
-      - name: Insert the binding into wrangler.jsonc
+      - name: Insert the binding into both Worker configs
         run: |
           node -e '
             const fs = require("fs");
             const id = process.env.KV_ID;
-            let s = fs.readFileSync("wrangler.jsonc", "utf8");
-            if (s.includes("\"kv_namespaces\"")) { console.log("binding already present — nothing to do"); process.exit(0); }
-            const anchor = "\"assets\":";
-            if (!s.includes(anchor)) { console.error("could not find assets anchor in wrangler.jsonc"); process.exit(1); }
-            s = s.replace(anchor, `"kv_namespaces": [{ "binding": "KOVA_SYNC", "id": "${id}" }],\n  ${anchor}`);
-            fs.writeFileSync("wrangler.jsonc", s);
-            console.log("binding inserted");
+            for (const file of ["wrangler.jsonc", "wrangler.kova.jsonc"]) {
+              let s = fs.readFileSync(file, "utf8");
+              if (s.includes("\"kv_namespaces\"")) { console.log(file + ": binding already present"); continue; }
+              const anchor = "\"assets\":";
+              if (!s.includes(anchor)) { console.error(file + ": could not find assets anchor"); process.exit(1); }
+              s = s.replace(anchor, `"kv_namespaces": [{ "binding": "KOVA_SYNC", "id": "${id}" }],\n  ${anchor}`);
+              fs.writeFileSync(file, s);
+              console.log(file + ": binding inserted");
+            }
           '
         env:
           KV_ID: ${{ steps.kv.outputs.id }}
 
-      - name: Commit updated config
+      - name: Commit updated configs
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add wrangler.jsonc
+          git add wrangler.jsonc wrangler.kova.jsonc
           git diff --staged --quiet || git commit -m "Enable KOVA OS device-sync KV binding [skip ci]"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Deploy with the new binding
+      - name: Build KOVA OS bundle
+        run: node build-kova.js
+
+      - name: Deploy wc2026-tracker with the new binding
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -89,13 +94,25 @@ jobs:
           wranglerVersion: '4'
           command: deploy
 
-      - name: Smoke-test the sync endpoint
+      - name: Deploy kova-os with the new binding
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4'
+          command: deploy -c wrangler.kova.jsonc
+
+      - name: Smoke-test the sync endpoints
         run: |
           set -e
-          for i in 1 2 3 4 5; do
-            BODY=$(curl -s https://wc2026-tracker.aarondweymann.workers.dev/api/sync/ping || true)
-            echo "attempt $i → $BODY"
-            echo "$BODY" | grep -q '"enabled":true' && { echo "✓ sync live"; exit 0; }
-            sleep 5
+          ok=0
+          for host in kova-os.aarondweymann.workers.dev wc2026-tracker.aarondweymann.workers.dev; do
+            for i in 1 2 3 4 5; do
+              BODY=$(curl -s "https://$host/api/sync/ping" || true)
+              echo "$host attempt $i → $BODY"
+              if echo "$BODY" | grep -q '"enabled":true'; then ok=$((ok+1)); break; fi
+              sleep 5
+            done
           done
-          echo "✗ sync endpoint did not come up"; exit 1
+          [ "$ok" = "2" ] && { echo "✓ sync live on both Workers"; exit 0; }
+          echo "✗ sync endpoint did not come up on all Workers"; exit 1

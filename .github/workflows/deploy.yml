@@ -35,6 +35,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build KOVA OS bundle
+        run: node build-kova.js
+
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v4
         with:
@@ -43,3 +46,11 @@ jobs:
           # v4 supports deploying a static-assets-only Worker (no main script)
           wranglerVersion: '4'
           command: deploy
+
+      - name: Deploy KOVA OS Worker
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4'
+          command: deploy -c wrangler.kova.jsonc

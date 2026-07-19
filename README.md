@@ -1,7 +1,14 @@
 # ◉ KOVA OS — Personal & Business Command Center
 
-**Live app:** https://wc2026-tracker.aarondweymann.workers.dev/kova.html
+**Live app:** https://kova-os.aarondweymann.workers.dev
 *(open on your phone → Share → Add to Home Screen to install)*
+
+KOVA OS deploys as its own Cloudflare Worker (`wrangler.kova.jsonc`, staged by
+`build-kova.js`, dashboard at the root path). The same app also remains
+reachable at `…/kova.html` on the tracker's URL — note that browser data is
+**per-origin**, so if you entered anything at the old URL, use
+Settings → Export backup there and Import at the new one (or enable
+device sync on both).
 
 KOVA OS is a personal operating system built from the *KOVA OS Product
 Framework*: one prioritized view across your day, companies, real estate,
