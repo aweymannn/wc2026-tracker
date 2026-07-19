@@ -1,0 +1,15 @@
+{
+  "name": "KOVA OS — Command Center",
+  "short_name": "KOVA OS",
+  "description": "Personal & business command center: one prioritized view across companies, real estate, investments, family, health and AI agents.",
+  "start_url": "./kova.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0d0d0d",
+  "categories": ["productivity", "business", "finance", "lifestyle"],
+  "icons": [
+    { "src": "kova-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
