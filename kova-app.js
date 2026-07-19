@@ -25,9 +25,18 @@ const KOVA = (() => {
   function save() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-      try { localStorage.setItem(LS_KEY, JSON.stringify(S)); }
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify(S));
+        if (KOVA.Sync && KOVA.Sync.onLocalSave) KOVA.Sync.onLocalSave();
+      }
       catch (e) { toast('⚠ Could not save (storage full?)'); }
     }, 120);
+  }
+  // Swap in a full state object (used by device sync / restore) and repaint.
+  function replaceState(next) {
+    S = next; rolloverDay();
+    try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {}
+    render();
   }
   function resetDemo() {
     if (!confirm('Reset ALL data back to the demo seed? Your local changes will be lost.')) return;
@@ -237,7 +246,8 @@ const KOVA = (() => {
     });
     html += `</div><div class="foot">
       <button class="nav-item" onclick="KOVA.togglePrivacy()"><span class="ico">${S.settings.privacy ? '🙈' : '👁'}</span>Privacy mode<span class="count">${S.settings.privacy ? 'on' : 'off'}</span></button>
-      <div class="small muted" style="padding:6px 10px 2px">Local data only · <span class="nowrap">${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></div>
+      <div class="small muted" style="padding:6px 10px 2px">${KOVA.Sync && KOVA.Sync.enabled() ? 'Encrypted sync on' : 'Local data only'} · <span class="nowrap">${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span></div>
+      <div id="sync-status">${KOVA.Sync && KOVA.Sync.statusLine ? KOVA.Sync.statusLine() : ''}</div>
     </div>`;
     el.innerHTML = html;
   }
@@ -571,6 +581,7 @@ const KOVA = (() => {
     $('#copilot-fab').addEventListener('click', () => KOVA.Copilot.open());
     if (!location.hash) location.hash = '#/home';
     render();
+    if (KOVA.Sync && KOVA.Sync.checkOnLoad) KOVA.Sync.checkOnLoad();
     // keep "now" indicators fresh
     setInterval(() => { if (route.id === 'home' || route.id === 'today') render(); }, 90000);
   }
@@ -578,7 +589,7 @@ const KOVA = (() => {
   return {
     // state & core
     get S() { return S; }, save, refresh, render, init, reg, nav, after,
-    resetDemo, exportJSON, importJSON, logActivity,
+    replaceState, resetDemo, exportJSON, importJSON, logActivity,
     // utils
     $, esc, uid, money, pct, fmtTime, fmtDay, fmtDate, dueBadge, daysUntil, todayISO,
     ws, wsColor, wsName, wsChip, proj, healthBadge,
