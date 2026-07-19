@@ -6,6 +6,10 @@
   "observability": {
     "enabled": true
   },
+  // KOVA OS device sync uses a KV namespace bound as KOVA_SYNC. Run the
+  // "KOVA sync setup (one-time)" GitHub workflow to create the namespace and
+  // insert the binding here automatically — do not add it by hand unless the
+  // namespace already exists, or deploys will fail.
   "assets": {
     "directory": ".",
     "binding": "ASSETS"

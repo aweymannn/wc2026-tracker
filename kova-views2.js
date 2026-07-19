@@ -692,8 +692,10 @@
             <div class="btnrow"><button class="btn" onclick="KOVA.togglePrivacy()">${S.settings.privacy ? 'Disable' : 'Enable'} privacy mode</button>
             <span class="small muted">blurs all money values for over-the-shoulder safety</span></div></div>
 
+          ${K.Sync && K.Sync.settingsCard ? K.Sync.settingsCard() : ''}
+
           <div class="card section-gap"><div class="card-head"><h3>Data — yours, locally</h3></div>
-            <div class="small" style="color:var(--ink-2);margin-bottom:10px">Everything lives in this browser's local storage. Nothing syncs to a server. Export a backup before switching devices or browsers.</div>
+            <div class="small" style="color:var(--ink-2);margin-bottom:10px">Everything lives in this browser's local storage — plus, if enabled above, an end-to-end encrypted cloud copy that only your passphrase can open. Export a JSON backup any time.</div>
             <div class="btnrow">
               <button class="btn" onclick="KOVA.exportJSON()">⇩ Export backup</button>
               <label class="btn" style="margin:0">⇪ Import backup<input type="file" accept=".json" style="display:none" onchange="KOVA.importJSON(this.files[0])"></label>

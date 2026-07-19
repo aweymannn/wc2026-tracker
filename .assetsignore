@@ -6,9 +6,11 @@ node_modules
 .github
 .gitignore
 .assetsignore
+.wrangler
 *.md
 generate_ics.js
 worker.js
 wrangler.jsonc
+wrangler.dev.jsonc
 package.json
 package-lock.json
