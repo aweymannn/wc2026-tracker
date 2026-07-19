@@ -6,6 +6,55 @@ Live scores · Group standings · Knockout bracket · Stats · Venues · iCloud 
 
 -----
 
+## ◉ KOVA OS — Personal & Business Command Center
+
+This repo also hosts **KOVA OS** at [`/kova.html`](kova.html) — a personal operating
+system built from the *KOVA OS Product Framework*: one prioritized view across your
+day, companies, real estate, finances, investments, family, health, documents,
+goals and AI agents.
+
+**Screens (the framework's 15-screen MVP):** Command Center · Today (with morning
+brief + evening shutdown) · Universal Inbox · Calendar · Tasks · Projects ·
+Business Portfolio (Kova Holdings / Living / Stays / TRIBE) · Real Estate
+(pipeline, buy-box scoring, **live underwriting calculator**, owned-asset ops) ·
+Finance & Net Worth (balance sheet, 90-day cash forecast, scenario modeling) ·
+Investments (positions, covered-call/CSP tracking, concentration alerts) ·
+**AI Agent Control Center** · Family & Health · Documents & Knowledge ·
+Goals & Reviews (weekly review flow + decision journal) · Settings & Integrations.
+
+**Global controls:** `⌘K` command palette & universal search · `c` quick capture
+(with voice, on supported browsers) · approval queue · notification center ·
+privacy mode (blurs all money values) · installable as a phone app (PWA manifest).
+
+### Local-first by design
+
+All data lives in **your browser's localStorage** — nothing is sent to any server.
+The deployed page ships representative demo data; your edits stay on your device.
+Export/import JSON backups from Settings → Data.
+
+### Connecting your local AI model
+
+The **AI Agents** screen supervises 12 agents (daily brief, comms triage, calendar
+prep, RE sourcing, underwriting, market/options monitor, TRIBE content, document
+filing, bill monitor, travel, health summary, weekly review compiler). Until a
+model is connected they run in clearly-labeled **simulation** using your live data.
+To make them real:
+
+1. On your AI machine: `OLLAMA_ORIGINS="*" ollama serve` (or LM Studio with CORS
+   enabled — anything with an OpenAI-compatible `/v1` endpoint works).
+2. `ollama pull llama3.1:8b` (or your model of choice).
+3. In KOVA OS: **Settings → AI Gateway** → pick preset → **Test & save connection**.
+
+Every run is logged; agents *propose*, you *approve* (approval levels L0–L4 per
+the framework §14.3). The **Copilot** chat (✦ button) answers across a live
+snapshot of your system — entirely on your hardware.
+
+Communications (Gmail, Google Calendar, Shopify, Apple Health) bridge in through
+**n8n** running on the same machine — configure the webhook under Settings, and
+the Inbox "Sync" button pulls from it. The expected payload is documented in-app.
+
+-----
+
 ## 🌿 Forager's Atlas
 
 This repo also hosts a standalone **Forager's Atlas** at [`/foraging.html`](foraging.html) — a safety-first, region-based reference to wild **edible & medicinal plants**.
