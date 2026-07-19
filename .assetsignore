@@ -10,7 +10,12 @@ node_modules
 *.md
 generate_ics.js
 worker.js
+sync-api.js
+kova-worker.js
+build-kova.js
+dist-kova
 wrangler.jsonc
+wrangler.kova.jsonc
 wrangler.dev.jsonc
 package.json
 package-lock.json

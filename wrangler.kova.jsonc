@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // KOVA OS runs as its own Worker so it gets its own URL
+  // (https://kova-os.<account>.workers.dev) with the app at the root path.
+  // Deploy with:  npx wrangler deploy -c wrangler.kova.jsonc
+  // (run `node build-kova.js` first — it stages the assets into dist-kova/).
+  //
+  // The KOVA_SYNC KV binding is inserted automatically by the
+  // "KOVA sync setup (one-time)" GitHub workflow — do not add it by hand
+  // unless the namespace already exists, or deploys will fail.
+  "name": "kova-os",
+  "main": "kova-worker.js",
+  "compatibility_date": "2026-05-25",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist-kova",
+    "binding": "ASSETS"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
