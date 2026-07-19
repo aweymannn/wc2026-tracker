@@ -1,17 +1,13 @@
-# ⚽ World Cup 2026 Tracker
+# ◉ KOVA OS — Personal & Business Command Center
 
-Live scores · Group standings · Knockout bracket · Stats · Venues · iCloud calendar sync
+**Live app:** https://wc2026-tracker.aarondweymann.workers.dev/kova.html
+*(open on your phone → Share → Add to Home Screen to install)*
 
-**Live site:** *(paste your Cloudflare Pages URL here after first deploy)*
-
------
-
-## ◉ KOVA OS — Personal & Business Command Center
-
-This repo also hosts **KOVA OS** at [`/kova.html`](kova.html) — a personal operating
-system built from the *KOVA OS Product Framework*: one prioritized view across your
-day, companies, real estate, finances, investments, family, health, documents,
-goals and AI agents.
+KOVA OS is a personal operating system built from the *KOVA OS Product
+Framework*: one prioritized view across your day, companies, real estate,
+finances, investments, family, health, documents, goals and AI agents.
+This repo also hosts the [World Cup 2026 Tracker](#-world-cup-2026-tracker)
+and the [Forager's Atlas](#-foragers-atlas) further down.
 
 **Screens (the framework's 15-screen MVP):** Command Center · Today (with morning
 brief + evening shutdown) · Universal Inbox · Calendar · Tasks · Projects ·
@@ -68,6 +64,19 @@ snapshot of your system — entirely on your hardware.
 Communications (Gmail, Google Calendar, Shopify, Apple Health) bridge in through
 **n8n** running on the same machine — configure the webhook under Settings, and
 the Inbox "Sync" button pulls from it. The expected payload is documented in-app.
+
+### Calendar export
+
+The Calendar screen can export your upcoming KOVA events as an `.ics` file —
+open it on iPhone/Mac to drop the events into Apple Calendar.
+
+-----
+
+# ⚽ World Cup 2026 Tracker
+
+Live scores · Group standings · Knockout bracket · Stats · Venues · iCloud calendar sync
+
+**Live site:** https://wc2026-tracker.aarondweymann.workers.dev
 
 -----
 

@@ -361,6 +361,7 @@
         <div class="seg"><button class="${calMode === 'week' ? 'on' : ''}" onclick="KOVA.V.calM('week')">Week</button>
         <button class="${calMode === 'agenda' ? 'on' : ''}" onclick="KOVA.V.calM('agenda')">Agenda</button></div>
         <span class="spacer"></span>
+        <button class="btn sm ghost" onclick="KOVA.V.exportICS()" title="Export upcoming events for Apple Calendar">⇩ .ics</button>
         <button class="btn sm" onclick="KOVA.V.eventModal()">＋ Event / block</button>
       </div>
       ${calMode === 'week' ? V.calWeek() : V.calAgenda()}
@@ -433,6 +434,31 @@
     K.closeModal(); K.refresh(); K.toast('Saved');
   };
   V.eventDelete = (id) => { K.S.events = K.S.events.filter(x => x.id !== id); K.closeModal(); K.refresh(); K.toast('Event removed'); };
+  // Export upcoming events as iCalendar — open on iPhone/Mac to add to Apple Calendar.
+  V.exportICS = () => {
+    const evs = K.S.events.filter(e => K.daysUntil(e.start) >= -1 && K.daysUntil(e.start) <= 90)
+      .sort((a, b) => a.start < b.start ? -1 : 1);
+    const dt = (iso) => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const escT = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//KOVA OS//Calendar//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:KOVA OS'];
+    evs.forEach(e => {
+      lines.push('BEGIN:VEVENT',
+        'UID:' + e.id + '@kova-os',
+        'DTSTAMP:' + dt(new Date().toISOString()),
+        'DTSTART:' + dt(e.start),
+        'DTEND:' + dt(e.end),
+        'SUMMARY:' + escT(e.title + (e.tentative ? ' (tentative)' : '')));
+      if (e.location) lines.push('LOCATION:' + escT(e.location));
+      if (e.prep) lines.push('DESCRIPTION:' + escT('Prep: ' + e.prep));
+      lines.push('END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'kova-calendar.ics'; a.click();
+    URL.revokeObjectURL(a.href);
+    K.toast(evs.length + ' events exported — open the file to add to Apple Calendar');
+  };
 
   /* ═══════════════════════ TASKS ═══════════════════════ */
   let taskView = 'myday', taskWs = 'all';
