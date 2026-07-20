@@ -1,5 +1,5 @@
 /* ============================================================================
-   KOVA OS — AI Agent Control Center (§14) + local-model gateway + Copilot (§26)
+   HQ — AI Agent Control Center (§14) + local-model gateway + Copilot (§26)
    ----------------------------------------------------------------------------
    The gateway speaks the OpenAI-compatible chat API, which covers Ollama,
    LM Studio, llama.cpp server, vLLM and most local stacks. Agents assemble a
@@ -176,7 +176,7 @@
     if (cfg.connected) {
       try {
         output = await A.chat([
-          { role: 'system', content: `You are the "${ag.name}" agent inside KOVA OS, ${S.settings.name}'s personal command center. Approval policy: ${LEVELS[ag.level]} — you PROPOSE, the user approves; never claim to have executed anything. Use ONLY the JSON data provided. Be concise and concrete. Today is ${new Date().toDateString()}.` },
+          { role: 'system', content: `You are the "${ag.name}" agent inside HQ, ${S.settings.name}'s personal command center. Approval policy: ${LEVELS[ag.level]} — you PROPOSE, the user approves; never claim to have executed anything. Use ONLY the JSON data provided. Be concise and concrete. Today is ${new Date().toDateString()}.` },
           { role: 'user', content: AGENT_PROMPTS[ag.builder] + '\n\nDATA:\n' + JSON.stringify(ctx) },
         ]);
         mode = 'live';
@@ -322,7 +322,7 @@
     document.getElementById('copilot').innerHTML = `
       <div class="cp-head">
         <span class="ai-dot ${cfg.connected ? 'on' : ''}"></span>
-        <b style="font-size:13.5px">KOVA Copilot</b>
+        <b style="font-size:13.5px">HQ Copilot</b>
         <span class="small muted">${cfg.connected ? esc(cfg.model) : 'offline'}</span>
         <span class="spacer"></span>
         ${thread.length ? '<button class="btn sm ghost" onclick="KOVA.Copilot.clear()">clear</button>' : ''}
@@ -330,7 +330,7 @@
       </div>
       <div class="cp-body" id="cp-body">
         ${thread.length ? '' : `<div class="cp-msg ai">${cfg.connected
-          ? 'Connected to your local model. Ask about anything in KOVA — “what needs my attention?”, “summarize the Mesa deal”, “draft a note to the lender”.'
+          ? 'Connected to your local model. Ask about anything in HQ — “what needs my attention?”, “summarize the Mesa deal”, “draft a note to the lender”.'
           : 'No local model connected yet, so I can\'t reason freely — but your agents still run in simulation. Once your AI machine is running Ollama, connect it in <b>Settings → AI Gateway</b> and this chat comes alive, fully private on your hardware.'}</div>`}
         ${thread.map(m => `<div class="cp-msg ${m.role === 'user' ? 'user' : 'ai'}">${esc(m.content)}</div>`).join('')}
         ${CP._busy ? '<div class="cp-msg ai muted">thinking…</div>' : ''}
@@ -370,7 +370,7 @@
     try {
       const history = S.copilotThread.slice(-8).map(m => ({ role: m.role, content: m.content }));
       const reply = await A.chat([
-        { role: 'system', content: `You are KOVA Copilot — chief-of-staff for ${S.settings.name} inside this personal command center. Answer from the SNAPSHOT of live system data below; be direct, numerate and brief. You may recommend and draft, but actions require the user's approval — never claim to have executed anything.\nSNAPSHOT: ${CP.snapshot()}` },
+        { role: 'system', content: `You are the HQ Copilot — chief-of-staff for ${S.settings.name} inside this personal command center. Answer from the SNAPSHOT of live system data below; be direct, numerate and brief. You may recommend and draft, but actions require the user's approval — never claim to have executed anything.\nSNAPSHOT: ${CP.snapshot()}` },
         ...history,
       ], { maxTokens: 500 });
       S.copilotThread.push({ role: 'assistant', content: reply });

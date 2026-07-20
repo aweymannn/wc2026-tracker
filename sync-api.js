@@ -1,5 +1,5 @@
-// ── KOVA OS device sync — shared Worker module ─────────────────────────────
-// End-to-end encrypted state sync for KOVA OS. The client derives BOTH the
+// ── HQ device sync — shared Worker module ─────────────────────────────
+// End-to-end encrypted state sync for HQ. The client derives BOTH the
 // record id and an AES-GCM key from the user's passphrase (PBKDF2) and
 // encrypts before upload — the Worker and KV only ever see ciphertext, so
 // nothing readable exists server-side even with full Cloudflare access.

@@ -1,5 +1,5 @@
 /* ============================================================================
-   KOVA OS — core engine
+   HQ — core engine (the global "KOVA" namespace is a historic internal name)
    State store (localStorage) · hash router · global controls (palette, quick
    capture, approvals, notifications, privacy) · formatting & chart helpers.
    Views register screens via KOVA.reg(); agent gateway lives in kova-agents.js.
@@ -46,7 +46,7 @@ const KOVA = (() => {
     const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'kova-os-backup-' + todayISO() + '.json';
+    a.download = 'hq-backup-' + todayISO() + '.json';
     a.click(); URL.revokeObjectURL(a.href);
     toast('Backup downloaded');
   }
@@ -234,7 +234,7 @@ const KOVA = (() => {
 
   function renderSidebar() {
     const el = $('#sidebar');
-    let html = `<div class="logo"><div class="logo-mark">K</div><div class="logo-name">KOVA <span>OS</span></div></div><div class="nav">`;
+    let html = `<div class="logo"><div class="logo-mark">◉</div><div class="logo-name">HQ <span>command center</span></div></div><div class="nav">`;
     NAV_SECTIONS.forEach(sec => {
       html += `<div class="nav-section">${sec.name}</div>`;
       sec.ids.forEach(id => {
@@ -373,7 +373,7 @@ const KOVA = (() => {
   /* ======================== quick capture (§21.2) ============================ */
   function openCapture(presetType) {
     const wsOpts = S.workspaces.map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('');
-    modal(`<h2>Quick capture</h2><div class="sub">One box for everything — KOVA infers what it is. Try “pay water bill friday”, “idea: bundle Sedona + kart day”, or a note.</div>
+    modal(`<h2>Quick capture</h2><div class="sub">One box for everything — HQ infers what it is. Try “pay water bill friday”, “idea: bundle Sedona + kart day”, or a note.</div>
       <textarea id="cap-text" rows="3" placeholder="Capture a task, idea, note, or expense…"></textarea>
       <div class="grid cols-2">
         <div><label>Type</label><select id="cap-type">

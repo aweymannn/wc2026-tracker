@@ -1,18 +1,21 @@
-# ◉ KOVA OS — Personal & Business Command Center
+# ◉ HQ — Personal Command Center
 
-**Live app:** https://kova-os.aarondweymann.workers.dev
+**Live app:** https://hq.aarondweymann.workers.dev
 *(open on your phone → Share → Add to Home Screen to install)*
 
-KOVA OS deploys as its own Cloudflare Worker (`wrangler.kova.jsonc`, staged by
-`build-kova.js`, dashboard at the root path). The same app also remains
-reachable at `…/kova.html` on the tracker's URL — note that browser data is
+HQ deploys as its own Cloudflare Worker (`wrangler.kova.jsonc`, staged by
+`build-kova.js`, dashboard at the root path; the `kova-*` file names are
+historic internals from the framework document's working title). The same app
+also remains reachable at `…/kova.html` on the tracker's URL — browser data is
 **per-origin**, so if you entered anything at the old URL, use
 Settings → Export backup there and Import at the new one (or enable
 device sync on both).
 
-KOVA OS is a personal operating system built from the *KOVA OS Product
-Framework*: one prioritized view across your day, companies, real estate,
-finances, investments, family, health, documents, goals and AI agents.
+HQ is a personal operating system built from the Product Framework (whose
+working title was "KOVA OS" — renamed so the personal dashboard doesn't carry
+the Kova business brand): one prioritized view across your day, companies,
+real estate, finances, investments, family, health, documents, goals and AI
+agents.
 This repo also hosts the [World Cup 2026 Tracker](#-world-cup-2026-tracker)
 and the [Forager's Atlas](#-foragers-atlas) further down.
 
@@ -44,11 +47,11 @@ before upload** — the Worker and KV store only ciphertext, and a lost passphra
 is unrecoverable by design. Conflicts are last-writer-wins with an explicit
 "take cloud copy / overwrite" prompt.
 
-One-time setup: GitHub → Actions → **"KOVA sync setup (one-time)"** → Run
+One-time setup: GitHub → Actions → **"HQ sync setup (one-time)"** → Run
 workflow. It creates the `KOVA_SYNC` KV namespace with the existing Cloudflare
 secrets, inserts the binding into `wrangler.jsonc`, redeploys, and smoke-tests
 the endpoint. (If it fails on authorization, add **Workers KV Storage: Edit** to
-the `CLOUDFLARE_API_TOKEN` and re-run.) Then on each device: KOVA OS →
+the `CLOUDFLARE_API_TOKEN` and re-run.) Then on each device: HQ →
 Settings → **Device sync** → same passphrase everywhere.
 
 ### Connecting your local AI model
@@ -62,7 +65,7 @@ To make them real:
 1. On your AI machine: `OLLAMA_ORIGINS="*" ollama serve` (or LM Studio with CORS
    enabled — anything with an OpenAI-compatible `/v1` endpoint works).
 2. `ollama pull llama3.1:8b` (or your model of choice).
-3. In KOVA OS: **Settings → AI Gateway** → pick preset → **Test & save connection**.
+3. In HQ: **Settings → AI Gateway** → pick preset → **Test & save connection**.
 
 Every run is logged; agents *propose*, you *approve* (approval levels L0–L4 per
 the framework §14.3). The **Copilot** chat (✦ button) answers across a live
@@ -74,7 +77,7 @@ the Inbox "Sync" button pulls from it. The expected payload is documented in-app
 
 ### Calendar export
 
-The Calendar screen can export your upcoming KOVA events as an `.ics` file —
+The Calendar screen can export your upcoming HQ events as an `.ics` file —
 open it on iPhone/Mac to drop the events into Apple Calendar.
 
 -----
