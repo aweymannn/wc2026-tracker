@@ -1,5 +1,5 @@
 /* ============================================================================
-   KOVA OS — encrypted device sync
+   HQ — encrypted device sync
    ----------------------------------------------------------------------------
    Syncs the full app state between devices through the site's own Cloudflare
    Worker (/api/sync), end-to-end encrypted:

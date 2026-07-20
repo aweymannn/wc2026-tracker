@@ -1,4 +1,4 @@
-// Stage the KOVA OS static bundle into dist-kova/ for the "kova-os" Worker.
+// Stage the HQ static bundle into dist-kova/ for the "hq" Worker.
 // kova.html becomes index.html so the dashboard serves at the root path;
 // the PWA manifest is rewritten to match. Run before deploying with
 // wrangler.kova.jsonc (the deploy workflow does this automatically).

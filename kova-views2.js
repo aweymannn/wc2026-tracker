@@ -1,5 +1,5 @@
 /* ============================================================================
-   KOVA OS — screens, part 2
+   HQ — screens, part 2
    Business Portfolio · Real Estate · Finance · Investments · Family & Health ·
    Documents & Knowledge · Goals & Reviews · Settings & Integrations
    ========================================================================== */
@@ -366,7 +366,7 @@
                 <div class="meta"><span>expires ${K.fmtDay(o.expiry)} (${dte}d)</span><span>premium ${money(o.premium)}</span><span>spot ${money(p.price)}</span></div></div>
                 <span class="badge ${near ? 'amber' : 'green'}">${near ? 'near strike' : 'OTM'}</span></div>`;
             }).join('') || '<div class="empty">No open option positions.</div>'}</div>
-            <div class="small muted" style="margin-top:8px">Analysis and reminders only — no trades execute from KOVA OS (§13.4).</div></div>
+            <div class="small muted" style="margin-top:8px">Analysis and reminders only — no trades execute from HQ (§13.4).</div></div>
           <div class="card section-gap"><div class="card-head"><h3>Concentration</h3></div>
             ${K.barsH(pos.filter(p => p.qty).map(p => ({ k: p.ticker, v: Math.round(p.qty * p.price / 1000) })), { fmt: (v) => '$' + v + 'k' })}</div>
         </div>
@@ -635,7 +635,7 @@
           <div class="card"><div class="card-head"><h3>AI gateway — local model</h3>
             <span class="ai-dot ${ai.connected ? 'on' : ''}" style="margin-left:4px"></span></div>
             <div class="small" style="color:var(--ink-2);margin-bottom:8px">
-              KOVA agents and the Copilot run against <b>your own model on your own hardware</b>. Anything OpenAI-compatible works: Ollama, LM Studio, llama.cpp, vLLM. Nothing is sent to a cloud provider unless you point the URL at one.</div>
+              HQ agents and the Copilot run against <b>your own model on your own hardware</b>. Anything OpenAI-compatible works: Ollama, LM Studio, llama.cpp, vLLM. Nothing is sent to a cloud provider unless you point the URL at one.</div>
             <div class="grid cols-2">
               <div><label>Provider preset</label>
                 <select id="ai-provider" onchange="KOVA.V.aiPreset(this.value)">
@@ -659,11 +659,11 @@
               Browsers require your model server to allow requests from this app's origin.<br><br>
               <b>Ollama:</b> start with <code>OLLAMA_ORIGINS="*"</code> (or this site's exact origin):<pre class="code">OLLAMA_ORIGINS="*" ollama serve</pre>
               <b>LM Studio:</b> Server tab → enable CORS.<br>
-              <b>Remote/HTTPS note:</b> when using KOVA OS from its https:// URL, browsers only allow plain-http calls to <code>localhost</code> — so run KOVA on the same machine as the model, or serve the model behind https on your LAN.</div></details>
+              <b>Remote/HTTPS note:</b> when using HQ from its https:// URL, browsers only allow plain-http calls to <code>localhost</code> — so run HQ on the same machine as the model, or serve the model behind https on your LAN.</div></details>
           </div>
 
           <div class="card section-gap"><div class="card-head"><h3>n8n bridge — communications & sync</h3></div>
-            <div class="small" style="color:var(--ink-2);margin-bottom:8px">n8n is the integration spine (§25): Gmail, Google Calendar, Shopify and Apple Health flow through n8n workflows into KOVA's inbox endpoint. Runs on your own hardware next to the model.</div>
+            <div class="small" style="color:var(--ink-2);margin-bottom:8px">n8n is the integration spine (§25): Gmail, Google Calendar, Shopify and Apple Health flow through n8n workflows into HQ's inbox endpoint. Runs on your own hardware next to the model.</div>
             <div class="grid cols-2">
               <div><label>n8n base URL</label><input id="n8n-url" value="${esc(n8n.baseUrl)}" placeholder="http://localhost:5678"></div>
               <div><label>Inbox webhook path</label><input id="n8n-path" value="${esc(n8n.inboxPath)}"></div>
@@ -710,7 +710,7 @@
 
           <div class="card section-gap"><div class="card-head"><h3>About</h3></div>
             <div class="small" style="color:var(--ink-2);line-height:1.7">
-              <b>KOVA OS</b> — personal & business command center, built from the KOVA OS Product Framework.<br>
+              <b>HQ</b> — your personal command center, built from the Product Framework.<br>
               Architecture: static app · local-first data · supervised agents · your model, your hardware.<br>
               Keyboard: <kbd>⌘K</kbd> command palette · <kbd>c</kbd> quick capture · <kbd>esc</kbd> close.
             </div></div>

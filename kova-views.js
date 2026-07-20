@@ -1,5 +1,5 @@
 /* ============================================================================
-   KOVA OS — screens, part 1
+   HQ — screens, part 1
    Command Center · Today · Universal Inbox · Calendar · Tasks · Projects
    Screens register with KOVA.reg(); view actions live on KOVA.V.
    ========================================================================== */
@@ -440,7 +440,7 @@
       .sort((a, b) => a.start < b.start ? -1 : 1);
     const dt = (iso) => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     const escT = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
-    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//KOVA OS//Calendar//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:KOVA OS'];
+    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//HQ//Calendar//EN', 'CALSCALE:GREGORIAN', 'X-WR-CALNAME:HQ'];
     evs.forEach(e => {
       lines.push('BEGIN:VEVENT',
         'UID:' + e.id + '@kova-os',
@@ -455,7 +455,7 @@
     lines.push('END:VCALENDAR');
     const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob); a.download = 'kova-calendar.ics'; a.click();
+    a.href = URL.createObjectURL(blob); a.download = 'hq-calendar.ics'; a.click();
     URL.revokeObjectURL(a.href);
     K.toast(evs.length + ' events exported — open the file to add to Apple Calendar');
   };

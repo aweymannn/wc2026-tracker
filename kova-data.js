@@ -1,11 +1,11 @@
 /* ============================================================================
-   KOVA OS — seed / demo data
+   HQ — seed / demo data
    ----------------------------------------------------------------------------
    Everything in this file is REPRESENTATIVE DEMO DATA. No live accounts are
    connected. Real data lives only in your browser's localStorage once you
    start editing — nothing is sent to a server.
 
-   KOVA_SEED() returns a complete app state. All dates are generated relative
+   KOVA_SEED() returns a complete app state (fn name is a historic internal). All dates are generated relative
    to "now" so the demo always looks current. Replace or edit objects freely —
    the app treats this only as the first-run template (Settings → Data →
    "Reset to demo data" re-applies it).
@@ -105,11 +105,11 @@ function KOVA_SEED() {
         { title: 'Scenario model (hold/develop/sell)', due: day(12), done: false },
         { title: 'Decision recorded', due: day(25), done: false }],
       risks: [], nextAction: 'Build seller-financing scenario in Finance → Scenarios', },
-    { id: 'p_localai', ws: 'ws_special', program: 'Local AI infrastructure', title: 'Local AI infrastructure', objective: 'Private local model serving KOVA OS agents: hardware, Ollama, n8n bridge, agent rollout.', owner: 'Aaron', status: 'active', priority: 2, health: 'green', target: day(45), goal: 'g_ai',
+    { id: 'p_localai', ws: 'ws_special', program: 'Local AI infrastructure', title: 'Local AI infrastructure', objective: 'Private local model serving HQ agents: hardware, Ollama, n8n bridge, agent rollout.', owner: 'Aaron', status: 'active', priority: 2, health: 'green', target: day(45), goal: 'g_ai',
       milestones: [
         { title: 'Hardware spec + order', due: day(-8), done: true },
         { title: 'Ollama serving on local network', due: day(14), done: false },
-        { title: 'KOVA OS connected (Settings → AI Gateway)', due: day(16), done: false },
+        { title: 'HQ connected (Settings → AI Gateway)', due: day(16), done: false },
         { title: 'First 3 agents live with approval gates', due: day(35), done: false }],
       risks: [], nextAction: 'Install Ollama + pull llama3.1:8b when the machine arrives', },
     { id: 'p_german', ws: 'ws_special', program: 'German citizenship', title: 'German citizenship program', objective: 'Documentation, application, and appointments through to naturalization certificate.', owner: 'Aaron', status: 'active', priority: 3, health: 'amber', target: day(300), goal: 'g_german',
@@ -154,7 +154,7 @@ function KOVA_SEED() {
     T({ title: 'Build Gilbert hold/develop/sell scenario model', ws: 'ws_re', projectId: 'p_gilbert', due: day(9), estimateMin: 120, energy: 'high' }),
     T({ title: 'Quarterly estimated tax payment', ws: 'ws_personal', due: day(26), priority: 1, estimateMin: 30 }),
     T({ title: 'Set up Ollama + pull llama3.1:8b on AI machine', ws: 'ws_special', projectId: 'p_localai', due: day(14), estimateMin: 90, energy: 'high' }),
-    T({ title: 'Connect KOVA OS to local model (Settings → AI Gateway)', ws: 'ws_special', projectId: 'p_localai', due: day(16), estimateMin: 20 }),
+    T({ title: 'Connect HQ to local model (Settings → AI Gateway)', ws: 'ws_special', projectId: 'p_localai', due: day(16), estimateMin: 20 }),
     T({ title: 'Collect 3 insurance quotes for Mesa 8-plex', ws: 'ws_re', projectId: 'p_azpipe', due: day(5), priority: 1, estimateMin: 45 }),
     T({ title: 'Review Kova Living June owner statements', ws: 'ws_living', due: day(8), estimateMin: 30 }),
     T({ title: 'Plan family coast trip — pick dates', ws: 'ws_family', projectId: 'p_travel', due: day(12), estimateMin: 30, energy: 'low' }),
@@ -455,7 +455,7 @@ function KOVA_SEED() {
     { id: 'k2', title: 'SOP — STR guest incident response', kind: 'sop', ws: 'ws_stays', updated: day(-80), body: 'Acknowledge <1h. Vendor dispatch same day. Comp matrix: minor 10%, major amenity 20%/night affected, uninhabitable = full refund + rebook. Log in PM system; review at weekly.' },
     { id: 'k3', title: 'Buy-box — AZ multifamily v3', kind: 'note', ws: 'ws_re', updated: day(-35), body: '4–20 units · Mesa/Gilbert/Tempe/Chandler (+Sedona STR exception) · DSCR ≥1.25 · CoC ≥6% · yield-on-cost ≥6.5% · no flood zone A · built ≥1980 unless full systems redo priced in.' },
     { id: 'k4', title: 'Decision rules — options income', kind: 'note', ws: 'ws_invest', updated: day(-21), body: 'CC only above cost basis +15%. CSP only at prices happy to own. Max 25% of liquid in any single name. Roll, don\'t panic-close, when thesis intact.' },
-    { id: 'k5', title: 'Local AI setup — target architecture', kind: 'research', ws: 'ws_special', updated: day(-8), body: 'Ollama on the workstation serving llama3.1:8b (fast) + llama3.1:70b-q4 (deep). KOVA OS talks to it via the OpenAI-compatible endpoint (Settings → AI Gateway). n8n on the same box bridges Gmail/Calendar → KOVA inbox webhook. Nothing leaves the LAN.' },
+    { id: 'k5', title: 'Local AI setup — target architecture', kind: 'research', ws: 'ws_special', updated: day(-8), body: 'Ollama on the workstation serving llama3.1:8b (fast) + llama3.1:70b-q4 (deep). HQ talks to it via the OpenAI-compatible endpoint (Settings → AI Gateway). n8n on the same box bridges Gmail/Calendar → HQ inbox webhook. Nothing leaves the LAN.' },
   ];
 
   /* ---- today (§6) ------------------------------------------------------------------ */
@@ -475,8 +475,8 @@ function KOVA_SEED() {
     ai: { provider: 'none', baseUrl: 'http://localhost:11434', model: '', apiKey: '', connected: false, lastCheck: null, models: [] },
     n8n: { baseUrl: '', inboxPath: '/webhook/kova-inbox', enabled: false },
     connectors: [
-      { id: 'gcal', name: 'Google Calendar', status: 'planned', note: 'Bridge via n8n: Calendar trigger → KOVA inbox webhook' },
-      { id: 'gmail', name: 'Gmail', status: 'planned', note: 'Bridge via n8n: Gmail trigger → KOVA inbox webhook' },
+      { id: 'gcal', name: 'Google Calendar', status: 'planned', note: 'Bridge via n8n: Calendar trigger → HQ inbox webhook' },
+      { id: 'gmail', name: 'Gmail', status: 'planned', note: 'Bridge via n8n: Gmail trigger → HQ inbox webhook' },
       { id: 'drive', name: 'Google Drive', status: 'planned', note: 'Document links open in Drive; indexing via n8n' },
       { id: 'plaid', name: 'Bank aggregation (Plaid)', status: 'planned', note: 'Requires a backend — see roadmap in README' },
       { id: 'broker', name: 'Brokerage (read-only)', status: 'planned', note: 'Manual price refresh for now; SnapTrade/Plaid later' },

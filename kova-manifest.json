@@ -1,7 +1,7 @@
 {
-  "name": "KOVA OS — Command Center",
-  "short_name": "KOVA OS",
-  "description": "Personal & business command center: one prioritized view across companies, real estate, investments, family, health and AI agents.",
+  "name": "HQ — Command Center",
+  "short_name": "HQ",
+  "description": "Your personal command center: one prioritized view across companies, real estate, investments, family, health and AI agents.",
   "start_url": "./kova.html",
   "scope": "./",
   "display": "standalone",
