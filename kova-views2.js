@@ -708,12 +708,14 @@
               <div class="grow"><div class="title" style="font-size:13px">${esc(w.name)}</div></div></div>`).join('')}</div>
             <div class="small muted" style="margin-top:6px">Personal and business context coexist — one attention budget across all of it (§1.3).</div></div>
 
-          <div class="card section-gap"><div class="card-head"><h3>About</h3></div>
+          <div class="card section-gap"><div class="card-head"><h3>About & help</h3></div>
             <div class="small" style="color:var(--ink-2);line-height:1.7">
               <b>HQ</b> — your personal command center, built from the Product Framework.<br>
               Architecture: static app · local-first data · supervised agents · your model, your hardware.<br>
               Keyboard: <kbd>⌘K</kbd> command palette · <kbd>c</kbd> quick capture · <kbd>esc</kbd> close.
-            </div></div>
+            </div>
+            <div class="btnrow" style="margin-top:10px"><a class="btn" href="kova-guide.html" target="_blank" rel="noopener">📖 Open the Field Guide</a>
+            <span class="small muted">setup · tour · security reference</span></div></div>
         </div>
       </div>`;
     },
