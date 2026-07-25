@@ -40,19 +40,17 @@ device. Export/import JSON backups from Settings → Data.
 
 ### Device sync (end-to-end encrypted)
 
-Optional sync between phone and desktop runs through this repo's own Cloudflare
-Worker (`/api/sync`). The app derives both the record id and an AES-256-GCM key
-from your passphrase (PBKDF2, 310k iterations) and **encrypts state in the browser
-before upload** — the Worker and KV store only ciphertext, and a lost passphrase
-is unrecoverable by design. Conflicts are last-writer-wins with an explicit
-"take cloud copy / overwrite" prompt.
+Sync between phone and desktop runs through the hq Worker (`/api/sync`),
+backed by a **Durable Object that deploys with the Worker itself** — no
+namespaces, tokens, or setup steps. The app derives both the record id and an
+AES-256-GCM key from your passphrase (PBKDF2, 310k iterations) and **encrypts
+state in the browser before upload** — the server stores only ciphertext, and
+a lost passphrase is unrecoverable by design. Conflicts are last-writer-wins
+with an explicit "take cloud copy / overwrite" prompt.
 
-One-time setup: GitHub → Actions → **"HQ sync setup (one-time)"** → Run
-workflow. It creates the `KOVA_SYNC` KV namespace with the existing Cloudflare
-secrets, inserts the binding into `wrangler.jsonc`, redeploys, and smoke-tests
-the endpoint. (If it fails on authorization, add **Workers KV Storage: Edit** to
-the `CLOUDFLARE_API_TOKEN` and re-run.) Then on each device: HQ →
-Settings → **Device sync** → same passphrase everywhere.
+To use it: on each device, open HQ → Settings → **Device sync** → same
+passphrase everywhere. (Sync is served on the hq URL; the legacy `/kova.html`
+copy on the tracker's address shows "not configured" by design.)
 
 ### Connecting your local AI model
 

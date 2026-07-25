@@ -197,7 +197,7 @@
     } catch (e) {
       if (e.message === 'sync-not-configured') {
         K.render();
-        K.toast('Keys saved — but the sync storage isn\'t deployed yet (run the setup workflow)');
+        K.toast('Keys saved — but sync isn\'t served at this address. Use the hq.…workers.dev URL.');
       } else K.toast('⚠ ' + e.message);
     }
   };
@@ -241,7 +241,7 @@
           <button class="btn primary" onclick="KOVA.Sync.setup()">Enable sync on this device</button>
           <span class="small muted">use the same passphrase on every device</span>
         </div>
-        <div class="small muted" style="margin-top:8px">Requires the one-time storage setup (GitHub → Actions → “KOVA sync setup”). A wrong passphrase isn't an error — it just looks like an empty account.</div>
+        <div class="small muted" style="margin-top:8px">A wrong passphrase isn't an error — it just looks like an empty account. Sync runs on the hq.…workers.dev address.</div>
       </div>`;
     const when = meta.lastAt ? new Date(meta.lastAt).toLocaleString() : 'never';
     return `
