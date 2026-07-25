@@ -16,6 +16,8 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT);
 for (const f of FILES) fs.copyFileSync(f, path.join(OUT, f));
 fs.copyFileSync('kova.html', path.join(OUT, 'index.html'));
+fs.copyFileSync('kova-guide.html', path.join(OUT, 'guide.html'));
+fs.copyFileSync('kova-guide.html', path.join(OUT, 'kova-guide.html'));
 
 const manifest = JSON.parse(fs.readFileSync('kova-manifest.json', 'utf8'));
 manifest.start_url = './';

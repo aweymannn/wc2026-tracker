@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d0d0d">
+<meta name="robots" content="noindex">
+<title>HQ Field Guide — setup, tour & security reference</title>
+<link rel="icon" href="kova-icon.svg" type="image/svg+xml">
+<style>
+:root {
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19; --raised:#222220; --ink:#fff; --ink-2:#c3c2b7;
+  --ink-3:#898781; --hairline:rgba(255,255,255,.1); --hairline-soft:rgba(255,255,255,.06);
+  --accent:#3987e5; --accent-soft:rgba(57,135,229,.14);
+  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:14.5px/1.62 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:32px 20px 80px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1{font-size:26px;letter-spacing:-.02em;margin:10px 0 4px}
+h2{font-size:19px;letter-spacing:-.01em;margin:44px 0 10px;padding-top:18px;border-top:1px solid var(--hairline-soft)}
+h3{font-size:15px;margin:22px 0 6px}
+p,li{color:var(--ink-2)}
+b,strong{color:var(--ink)}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#3987e5,#9085e9);display:grid;place-items:center;font-weight:800;color:#fff;font-size:17px}
+.sub{color:var(--ink-3);font-size:13px}
+.card{background:var(--surface);border:1px solid var(--hairline-soft);border-radius:12px;padding:16px 18px;margin:14px 0}
+.callout{border:1px solid rgba(57,135,229,.35);background:var(--accent-soft);border-radius:10px;padding:12px 15px;font-size:13.5px;margin:12px 0}
+.callout.warn{border-color:rgba(250,178,25,.35);background:rgba(250,178,25,.08)}
+.callout.crit{border-color:rgba(208,59,59,.4);background:rgba(208,59,59,.1)}
+kbd{font:11px system-ui;color:var(--ink-2);border:1px solid var(--hairline);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--raised)}
+code{background:var(--raised);border:1px solid var(--hairline-soft);border-radius:5px;padding:1px 6px;font-size:12.5px;color:var(--ink-2);font-family:ui-monospace,"SF Mono",Menlo,monospace}
+pre{background:#111110;border:1px solid var(--hairline-soft);border-radius:8px;padding:12px 14px;overflow-x:auto;font-size:12.5px;color:var(--ink-2);font-family:ui-monospace,"SF Mono",Menlo,monospace}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);padding:7px 10px;border-bottom:1px solid var(--hairline)}
+td{padding:8px 10px;border-bottom:1px solid var(--hairline-soft);vertical-align:top;color:var(--ink-2)}
+.toc{columns:2;gap:24px;font-size:13.5px}
+.toc a{display:block;padding:3px 0}
+.badge{display:inline-block;font-size:11px;font-weight:650;border-radius:99px;padding:2px 9px}
+.badge.done{color:#7fd97f;background:rgba(12,163,12,.13)}
+.badge.you{color:#ffd479;background:rgba(250,178,25,.12)}
+.badge.next{color:#a9cdf6;background:var(--accent-soft)}
+ol.steps{counter-reset:s;list-style:none;padding:0}
+ol.steps>li{counter-increment:s;position:relative;padding:0 0 18px 44px}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:9px;background:var(--accent-soft);border:1px solid rgba(57,135,229,.4);color:#cfe3fb;font-weight:700;display:grid;place-items:center;font-size:13px}
+.screen{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--hairline-soft)}
+.screen .ico{width:24px;text-align:center;flex:none;opacity:.85}
+.screen b{display:block}
+.screen span{font-size:13px;color:var(--ink-2)}
+@media(max-width:640px){.toc{columns:1}}
+@media print{body{background:#fff;color:#111}:root{color-scheme:light}}
+</style>
+</head>
+<body><div class="wrap">
+
+<div class="logo"><div class="logo-mark">◉</div><div>
+  <h1>The HQ Field Guide</h1>
+  <div class="sub">Setup checklist · screen-by-screen tour · operating rhythm · security model — keep this as your reference. Open HQ itself at <a href="https://hq.aarondweymann.workers.dev">hq.aarondweymann.workers.dev</a>.</div>
+</div></div>
+
+<div class="card"><div class="toc">
+  <a href="#what">1 · What HQ is (30 seconds)</a>
+  <a href="#setup">2 · Full setup checklist</a>
+  <a href="#rhythm">3 · The operating rhythm</a>
+  <a href="#tour">4 · Screen-by-screen tour</a>
+  <a href="#controls">5 · Global controls</a>
+  <a href="#security">6 · Security & privacy model</a>
+  <a href="#ai">7 · The AI machine day</a>
+  <a href="#faq">8 · Troubleshooting & FAQ</a>
+</div></div>
+
+<h2 id="what">1 · What HQ is (30 seconds)</h2>
+<p>HQ is your personal command center — one prioritized view over your day, the Kova companies, real estate, finances, investments, family, health, documents, goals, and (soon) your AI agents. It is built around one idea: <b>attention, not information</b>. The Command Center should answer five questions within ten seconds of opening it:</p>
+<p><b>What matters today? What's at risk? What needs a decision? What changed? Where should attention go next?</b></p>
+<p>Everything else — the 14 other screens — exists to keep those answers honest. Healthy systems stay quiet.</p>
+
+<h2 id="setup">2 · Full setup checklist</h2>
+<p>Do these once, in order. Badges show whose move it is: <span class="badge done">live</span> already done · <span class="badge you">you</span> needs your hands · <span class="badge next">next build</span> on the roadmap.</p>
+
+<ol class="steps">
+<li><b>Install HQ on your phone</b> <span class="badge you">you</span><br>
+Open <code>https://hq.aarondweymann.workers.dev</code> in Safari (iPhone) → Share button → <b>Add to Home Screen</b>. It installs as a standalone app named "HQ" with its own icon. On desktop, bookmark the same URL (Chrome also offers "Install HQ" in the address bar).</li>
+
+<li><b>Choose your sync passphrase — carefully</b> <span class="badge you">you</span><br>
+Settings → <b>Device sync</b>. Pick a passphrase of <b>3–4 random words</b> (e.g. "copper heron velvet marathon" — not that one now that it's written here). This passphrase <i>is</i> your data's encryption key: it never leaves your devices, the server only ever stores scrambled ciphertext, and <b>nobody — not Cloudflare, not anyone — can recover it if lost</b>. Write it on paper and store it where you keep passports. Enable sync with the same passphrase on phone and desktop; the second device will offer to adopt the first one's data.</li>
+
+<li><b>Replace the demo data with your reality</b> <span class="badge you">you</span><br>
+Everything on screen is editable demo data. Work through it in this order — about an hour total, and the app becomes real:
+  <br>① <b>Finance</b>: edit the account list to your real balances (tap any account).
+  <br>② <b>Investments</b>: edit positions to your actual holdings (tap a row).
+  <br>③ <b>Real Estate</b>: correct the owned-property numbers and prune the pipeline to live deals.
+  <br>④ <b>Tasks / Projects / Calendar</b>: delete what isn't yours, capture what is (<kbd>c</kbd> is fastest).
+  <br>⑤ <b>Settings → Data → Export backup</b> when done — your first restore point.</li>
+
+<li><b>Lock the two accounts that ARE your supply chain</b> <span class="badge you">you</span><br>
+The app's code deploys from GitHub through Cloudflare. Whoever controls those accounts controls the code your browser runs — they are the real security boundary. On <b>GitHub</b>: Settings → Password & authentication → enable 2FA (passkey or hardware key beats SMS). On <b>Cloudflare</b>: My Profile → Authentication → enable 2FA. Ten minutes, biggest risk reduction available.</li>
+
+<li><b>Optional but recommended: put a login gate in front of HQ</b> <span class="badge you">you</span><br>
+Today anyone with the URL can load the app shell (they see only demo data — your data never leaves your devices). To make even the page private: bring any domain into Cloudflare (~$10/yr), attach it to the hq Worker (Workers & Pages → hq → Settings → Domains & Routes), then Zero Trust → Access → Applications → add the domain with a policy allowing only your email. After that, opening HQ asks for a one-time code to your inbox first. Free at personal scale.</li>
+
+<li><b>When the AI machine arrives: bring the agents to life</b> <span class="badge you">you</span> — full steps in <a href="#ai">section 7</a>.</li>
+
+<li><b>Real market prices & brokerage import</b> <span class="badge next">next build</span><br>
+Live public price feeds, Fidelity CSV import, and the SnapTrade read-only pipe are the next builds — ask Claude to build them when you're ready. Until then, tap any position to update its price manually.</li>
+</ol>
+
+<h2 id="rhythm">3 · The operating rhythm</h2>
+<div class="card">
+<h3 style="margin-top:0">Morning — 10 minutes</h3>
+<p>Open <b>Today</b>. Read the brief. Set (or confirm) the three outcomes — the test is: <i>if everything else slipped but these got done, today was a win</i>. Scan the attention feed on the Command Center; approve or dismiss anything agents queued overnight.</p>
+<h3>During the day — seconds at a time</h3>
+<p>Capture everything the moment it lands — <kbd>c</kbd> on desktop, the big ＋ on your phone. "pay water bill friday" becomes a dated task by itself. Never keep a commitment in your head; the inbox and capture box are the only two places things are allowed to enter.</p>
+<h3>Evening — 5 minutes</h3>
+<p>Today → <b>Start daily shutdown</b>. Check off outcomes, push what's left to tomorrow, write one line of notes, name tomorrow's first outcome. Closing the day deliberately is what keeps the mornings calm.</p>
+<h3>Friday — 30 minutes</h3>
+<p>Goals & Reviews → <b>Run weekly review</b>. The system pre-fills what it knows (completions, overdues, projects at risk, agent activity); you add judgment: wins, root causes of misses, and next week's five outcomes. This is the highest-leverage half hour of the system.</p>
+</div>
+
+<h2 id="tour">4 · Screen-by-screen tour</h2>
+<div class="screen"><span class="ico">◉</span><div><b>Command Center</b><span>The landing page. Three outcomes, metric cards, the ranked attention feed (each item says <i>why</i> it surfaced), domain health for Personal / Family / Kova Group / Real Estate / Investments / Health, and today's timeline with conflict flags.</span></div></div>
+<div class="screen"><span class="ico">☀</span><div><b>Today</b><span>The execution cockpit: morning brief, due & at-risk tasks, schedule with prep notes, family logistics, training readiness, and the evening shutdown flow.</span></div></div>
+<div class="screen"><span class="ico">▤</span><div><b>Inbox</b><span>Only items requiring review. Triage chips (reply / decision / task / waiting / read); open any item to extract a task or draft a reply. The n8n bridge will feed real Gmail here later.</span></div></div>
+<div class="screen"><span class="ico">▦</span><div><b>Calendar</b><span>Week board and agenda across all workspaces, color-coded, with conflict detection. The ⇩ .ics button exports upcoming events straight into Apple Calendar.</span></div></div>
+<div class="screen"><span class="ico">☑</span><div><b>Tasks</b><span>GTD views: My day, Next actions, Upcoming, Waiting, Delegated, Someday. Everything captured lands here; the checkbox is the most satisfying pixel in the app.</span></div></div>
+<div class="screen"><span class="ico">▣</span><div><b>Projects</b><span>Each project shows health, milestones, risks, linked tasks — and must connect upward to a goal. A project with no next action gets flagged; strategy connects to execution or it isn't strategy.</span></div></div>
+<div class="screen"><span class="ico">◈</span><div><b>Business Portfolio</b><span>Holding-company view: Kova Holdings, Kova Living, Kova Stays, TRIBE — cash, revenue trend, priorities, risks, compliance dates. Click into any company for its operating dashboard.</span></div></div>
+<div class="screen"><span class="ico">⌗</span><div><b>Real Estate</b><span>Owned assets (NOI, DSCR, occupancy, work orders, renewals) plus the acquisition pipeline with 10-factor buy-box scores and a <b>live underwriting calculator</b> — edit any assumption and DSCR / cash-on-cash / yield-on-cost recompute against your floors instantly.</span></div></div>
+<div class="screen"><span class="ico">⊞</span><div><b>Finance</b><span>Net worth and its 12-month trend, the balance sheet, a 90-day cash forecast built from your actual obligations, and a scenario box ("what if the Gilbert land sells for X on day 30?").</span></div></div>
+<div class="screen"><span class="ico">∿</span><div><b>Investments</b><span>Positions with P/L and weights, covered-call / cash-secured-put tracking with strike-proximity and expiry alerts, single-name concentration limits, and a thesis + invalidation journal per position.</span></div></div>
+<div class="screen"><span class="ico">✦</span><div><b>AI Agents</b><span>The registry of 12 agents with approval levels (they propose, you approve), run logs, and trust ratings. Runs are honestly labeled "simulated" until your local model connects — then they run for real, on your hardware.</span></div></div>
+<div class="screen"><span class="ico">⌂</span><div><b>Family & Health</b><span>Family week ahead, household operations, Kylen's development pathway, sleep/weight trends, readiness ring, training week, and the travel pipeline.</span></div></div>
+<div class="screen"><span class="ico">▤</span><div><b>Documents</b><span>Document index organized by relationships (workspace, entity, property, expiration — not folders), with expiring-soon alerts, plus the knowledge base of SOPs and decision rules.</span></div></div>
+<div class="screen"><span class="ico">◎</span><div><b>Goals & Reviews</b><span>Goals by life area (flagged when no active project serves them), the guided weekly review, review history, and the decision journal — record assumptions before outcomes are known, score them at the review date.</span></div></div>
+<div class="screen"><span class="ico">⚙</span><div><b>Settings</b><span>AI gateway, n8n bridge, device sync, connector roadmap, workspaces, privacy mode, and data export/import/reset.</span></div></div>
+
+<h2 id="controls">5 · Global controls</h2>
+<table>
+<tr><th>Control</th><th>How</th><th>What it does</th></tr>
+<tr><td><b>Command palette</b></td><td><kbd>⌘K</kbd> / <kbd>Ctrl K</kbd> or the search bar</td><td>Search everything — tasks, deals, people, documents, positions — and run commands (new task, weekly review, record decision, toggle privacy).</td></tr>
+<tr><td><b>Quick capture</b></td><td><kbd>c</kbd>, the ＋ button, or the center tab on mobile</td><td>One box for everything. Understands dates ("friday", "tomorrow") and types ("idea: …" → Someday).</td></tr>
+<tr><td><b>Approvals</b></td><td>✓ icon, top right</td><td>Agent-proposed actions wait here. Nothing an agent suggests executes without you.</td></tr>
+<tr><td><b>Notifications</b></td><td>◔ icon, top right</td><td>Exception-driven: each one says what happened, why it matters, what to do, by when.</td></tr>
+<tr><td><b>Privacy mode</b></td><td>Sidebar footer (or palette)</td><td>Blurs every dollar figure instantly — for screens in public or screen-sharing.</td></tr>
+<tr><td><b>Copilot</b></td><td>✦ floating button</td><td>Chat across a live snapshot of your whole system. Comes alive when your local model connects.</td></tr>
+</table>
+
+<h2 id="security">6 · Security & privacy model — the honest version</h2>
+<p>HQ was designed so that <b>no company can read your data</b>. Here is exactly what sits where:</p>
+<table>
+<tr><th>Place</th><th>What it holds</th><th>Who can read it</th></tr>
+<tr><td><b>Your browser</b> (each device)</td><td>Your full data, in localStorage</td><td>Anyone using your unlocked device — protect devices with passcodes/FileVault.</td></tr>
+<tr><td><b>Cloudflare</b> (the hq Worker)</td><td>The app's code, demo seed, and your sync record — <b>ciphertext only</b>, AES-256 encrypted in your browser with a key derived from your passphrase (PBKDF2, 310k rounds). Plus ordinary web logs (IPs, timestamps).</td><td>Content: nobody without your passphrase. Metadata (that <i>something</i> synced, when, from which IP): Cloudflare.</td></tr>
+<tr><td><b>GitHub</b></td><td>The app's source code and demo data only. Never your real data.</td><td>Public repo — which is fine, because nothing personal is in it.</td></tr>
+<tr><td><b>Your AI machine</b> (soon)</td><td>Model inference, n8n credentials for Gmail/Calendar/etc.</td><td>Only you — that's the point of it.</td></tr>
+</table>
+
+<h3>What this already defeats</h3>
+<p>Data-mining by the host ✓ (ciphertext only) · a Cloudflare data breach exposing your finances ✓ (nothing readable to breach) · someone finding the URL ✓ (they get a demo) · a stolen backup of the server ✓ · cloud AI companies reading your life ✓ (the model is yours, on your hardware).</p>
+
+<h3>The two honest residual risks — and their fixes</h3>
+<div class="callout warn"><b>1 · The supply chain.</b> Like every web app on earth (including your bank's), the JavaScript your browser runs comes from a server. Someone who compromised your GitHub or Cloudflare account could ship altered code that reads data <i>inside your browser</i>, where it is necessarily decrypted. Fix: hardware-key 2FA on both accounts (setup step 4) — and, for the maximum end state, self-host HQ on your AI machine behind Tailscale so no third party serves the code at all. The app is a folder of static files; it runs anywhere.</div>
+<div class="callout warn"><b>2 · Your passphrase and your devices.</b> The encryption is only as strong as the passphrase (use 4 words), and the app is only as private as an unlocked device. Plaintext JSON backups you export are unencrypted — store them like cash.</div>
+
+<div class="callout"><b>Where this lands:</b> as deployed, HQ is meaningfully more private than any commercial finance/productivity app — those companies hold your data readable on their servers; here, no company ever does. The remaining distance to "theoretically maximal" is the self-hosted-behind-Tailscale end state, which your AI machine makes possible the day it arrives.</div>
+
+<h3>Rules that keep it this way</h3>
+<p>Never paste real account numbers or secrets into the repo or demo data · never configure a cloud LLM in the AI gateway if you want inference private · prefer CSV import over aggregators for accounts you consider most sensitive · check the sidebar says "Encrypted sync on" after setup.</p>
+
+<h2 id="ai">7 · The AI machine day — bring the agents to life</h2>
+<ol class="steps">
+<li><b>Install Ollama</b> on the machine (<code>ollama.com/download</code>), then pull a model:<pre>ollama pull llama3.1:8b</pre></li>
+<li><b>Serve it with browser access allowed</b> (CORS), so HQ can reach it:<pre>OLLAMA_ORIGINS="*" ollama serve</pre>(Or LM Studio → Server tab → enable CORS. Anything with an OpenAI-compatible <code>/v1</code> endpoint works.)</li>
+<li><b>Connect HQ</b>: on a browser running <i>on that machine or its network</i>, open HQ → Settings → <b>AI Gateway</b> → preset "Ollama" → <b>Test & save connection</b>. The dot goes green; agents stop simulating; the Copilot wakes up. Every run stays on your hardware and is logged in the Agents screen.</li>
+<li><b>Install n8n</b> for real communications (Gmail, Calendar, Shopify, Apple Health):<pre>docker run -d --name n8n -p 5678:5678 \
+  -v n8n_data:/home/node/.n8n n8nio/n8n</pre>Authorize each account once inside n8n's UI, then set the bridge URL in HQ → Settings → n8n bridge. Ask Claude for the ready-made workflow templates when you get here.</li>
+<li><b>Install Tailscale</b> on the machine and your phone — then HQ can reach your model and n8n securely from anywhere, and later you can host HQ itself there for the full self-hosted end state.</li>
+</ol>
+
+<h2 id="faq">8 · Troubleshooting & FAQ</h2>
+<h3>I lost my sync passphrase.</h3>
+<p>The cloud copy is unrecoverable — by design. Your data is still on any device that has it: export a backup there (Settings → Data), pick a new passphrase, enable sync fresh, import if needed.</p>
+<h3>Sync says "conflict."</h3>
+<p>Two devices edited while out of sync. HQ shows both timestamps and asks which copy wins — whole-copy, last-writer-wins. Pick the one with the work you'd hate to lose; the other side's recent edits are discarded.</p>
+<h3>The agents say "simulated."</h3>
+<p>Correct and honest — no local model is connected yet. They still assemble real summaries from your live data. Section 7 makes them real.</p>
+<h3>I opened the old URL and my data is gone.</h3>
+<p>It isn't — browser data is per-address. Your data lives at whichever URL you entered it on. Export there / import at <code>hq.aarondweymann.workers.dev</code>, or just enable sync on both with the same passphrase.</p>
+<h3>Can family members use it?</h3>
+<p>Anyone opening the URL gets their own blank copy — handing someone your sync passphrase hands them <i>everything</i>, so don't share it. True multi-user with per-workspace permissions is the trigger for the bigger backend build (Claude has the plan).</p>
+<h3>How do I start over?</h3>
+<p>Settings → Data → <b>Reset to demo data</b> (this device), and <b>Delete cloud copy</b> if you want the synced record gone too.</p>
+
+<p class="sub" style="margin-top:40px">HQ Field Guide · lives at <code>/guide.html</code> next to the app · built from the Product Framework. When something here says "ask Claude," that's a build away.</p>
+
+</div></body>
+</html>
