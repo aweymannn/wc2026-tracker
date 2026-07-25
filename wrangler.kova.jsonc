@@ -5,9 +5,8 @@
   // Deploy with:  npx wrangler deploy -c wrangler.kova.jsonc
   // (run `node build-kova.js` first — it stages the assets into dist-kova/).
   //
-  // The KOVA_SYNC KV binding is inserted automatically by the
-  // "KOVA sync setup (one-time)" GitHub workflow — do not add it by hand
-  // unless the namespace already exists, or deploys will fail.
+  // Device-sync storage is the SyncStore Durable Object below — it deploys
+  // with the Worker itself, so sync needs no extra setup.
   "name": "hq",
   "main": "kova-worker.js",
   "compatibility_date": "2026-05-25",
@@ -18,6 +17,14 @@
     "directory": "dist-kova",
     "binding": "ASSETS"
   },
+  "durable_objects": {
+    "bindings": [
+      { "name": "SYNC_DO", "class_name": "SyncStore" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["SyncStore"] }
+  ],
   "compatibility_flags": [
     "nodejs_compat"
   ]

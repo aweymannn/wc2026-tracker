@@ -1,0 +1,54 @@
+# One-time housekeeping for HQ, run manually from the Actions tab:
+#   1. verifies device sync is live on the hq Worker (Durable Object storage)
+#   2. deletes the obsolete "kova-os" Worker left over from the rename
+#      (best-effort — succeeds quietly if it is already gone)
+#
+# Uses the same Cloudflare secrets as the deploy workflow. Safe to re-run.
+
+name: HQ cleanup (one-time)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Smoke-test device sync on hq
+        run: |
+          set -e
+          for i in 1 2 3 4 5; do
+            BODY=$(curl -s https://hq.aarondweymann.workers.dev/api/sync/ping || true)
+            echo "attempt $i → $BODY"
+            echo "$BODY" | grep -q '"enabled":true' && { echo "✓ sync live on hq"; exit 0; }
+            sleep 5
+          done
+          echo "✗ sync did not answer on hq"; exit 1
+
+      - name: Round-trip the sync API (write, conflict, read, delete)
+        run: |
+          set -e
+          BASE="https://hq.aarondweymann.workers.dev/api/sync"
+          ID=$(printf 'cleanup-smoke' | sha256sum | cut -c1-64)
+          PUT1=$(curl -s -X PUT "$BASE/$ID" -H 'Content-Type: application/json' -d '{"blob":"dGVzdA==","rev":"r1","baseRev":null}')
+          echo "put1 → $PUT1"; echo "$PUT1" | grep -q '"ok":true'
+          CONFLICT=$(curl -s -o /dev/null -w "%{http_code}" -X PUT "$BASE/$ID" -H 'Content-Type: application/json' -d '{"blob":"eA==","rev":"r2","baseRev":"WRONG"}')
+          echo "stale put → HTTP $CONFLICT"; [ "$CONFLICT" = "409" ]
+          GET=$(curl -s "$BASE/$ID")
+          echo "get → $GET"; echo "$GET" | grep -q '"rev":"r1"'
+          curl -s -X DELETE "$BASE/$ID" | grep -q '"ok":true'
+          echo "✓ full sync round-trip OK"
+
+      - name: Delete the obsolete kova-os Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          CODE=$(curl -s -o /tmp/del.json -w "%{http_code}" -X DELETE \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/workers/scripts/kova-os" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}")
+          echo "delete kova-os → HTTP $CODE"
+          cat /tmp/del.json; echo
+          if [ "$CODE" = "200" ]; then echo "✓ kova-os deleted";
+          elif [ "$CODE" = "404" ]; then echo "✓ kova-os already gone";
+          else echo "⚠ could not delete kova-os (delete it in the dashboard) — not failing the run"; fi

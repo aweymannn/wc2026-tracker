@@ -6,10 +6,9 @@
   "observability": {
     "enabled": true
   },
-  // KOVA OS device sync uses a KV namespace bound as KOVA_SYNC. Run the
-  // "KOVA sync setup (one-time)" GitHub workflow to create the namespace and
-  // insert the binding here automatically — do not add it by hand unless the
-  // namespace already exists, or deploys will fail.
+  // Device sync lives on the "hq" Worker (Durable Object). This Worker has
+  // no SYNC_DO binding, so /api/sync here answers 501 — the legacy
+  // /kova.html copy points users to the hq URL for syncing.
   "assets": {
     "directory": ".",
     "binding": "ASSETS"

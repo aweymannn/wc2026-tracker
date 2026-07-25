@@ -6,11 +6,11 @@
 //   2. Everything else → static assets staged into dist-kova/ by
 //      build-kova.js (kova.html is renamed to index.html there).
 //
-// The KOVA_SYNC KV binding (historic internal name) is added to
-// wrangler.kova.jsonc by the "HQ sync setup (one-time)" workflow;
-// until then sync answers 501.
+// Sync storage is a Durable Object (SyncStore) that deploys with this
+// Worker — no external namespaces or setup steps.
 
-import { handleSync } from './sync-api.js';
+import { handleSync, SyncStore } from './sync-api.js';
+export { SyncStore };
 
 export default {
   async fetch(request, env) {
