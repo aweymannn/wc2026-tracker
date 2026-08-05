@@ -15,7 +15,7 @@ jobs:
         run: |
           set -e
           for p in "/" "/guide.html"; do
-            CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://hq.aarondweymann.workers.dev$p")
+            CODE=$(curl -sL -o /dev/null -w "%{http_code}" "https://hq.aarondweymann.workers.dev$p")
             echo "$p → HTTP $CODE"; [ "$CODE" = "200" ]
           done
 
