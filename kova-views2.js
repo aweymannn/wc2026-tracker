@@ -236,6 +236,7 @@
     id: 'finance', title: 'Finance', icon: '⊞',
     render() {
       const S = K.S;
+      K.after(() => K.Feeds.autoMercury());
       const nw = K.netWorth(), liq = K.liquidCash();
       const catSum = (f) => S.accounts.filter(f).reduce((s, a) => s + a.balance, 0);
       const cats = [
@@ -270,7 +271,7 @@
             ${scenarioAdj.amount ? '<button class="btn sm ghost" onclick="KOVA.V.scenarioClear()">Clear</button>' : ''}</div></div>
         </div>
         <div>
-          <div class="card"><div class="card-head"><h3>Balance sheet</h3></div>
+          <div class="card"><div class="card-head"><h3>Balance sheet</h3><button class="link" onclick="KOVA.Feeds.mercuryRefresh({toast:true})">↻ Mercury</button></div>
             ${K.barsH(cats.map(([k, v]) => ({ k, v })), { fmt: (v) => money(Math.round(v), { short: true }) })}
             <hr class="divider">
             <div class="rows">${S.accounts.map(a => `
@@ -319,6 +320,7 @@
     id: 'investments', title: 'Investments', icon: '∿',
     render() {
       const S = K.S;
+      K.after(() => K.Feeds.autoQuotes());
       const total = K.positionsValue();
       const pos = [...S.positions].sort((a, b) => b.qty * b.price - a.qty * a.price);
       const options = S.positions.flatMap(p => (p.options || []).map(o => ({ p, o })));
@@ -337,14 +339,14 @@
       if (maxW > S.investMeta.targetMaxSinglePos) alerts.push(`${maxP.ticker} is ${K.pct(maxW)} of portfolio — above your ${K.pct(S.investMeta.targetMaxSinglePos)} single-name limit`);
       return `
       <div class="grid cols-4">
-        <div class="card metric"><div class="k">Positions value</div><div class="v">${money(total, { short: true })}</div><div class="sub">prices as of ${K.fmtDay(S.investMeta.pricesAsOf)} · <a onclick="KOVA.V.refreshPrices()" style="cursor:pointer">update</a></div></div>
+        <div class="card metric"><div class="k">Positions value</div><div class="v">${money(total, { short: true })}</div><div class="sub">prices as of ${K.fmtDay(S.investMeta.pricesAsOf)} ${K.fmtTime(S.investMeta.pricesAsOf)} · <a onclick="KOVA.Feeds.refreshQuotes({toast:true})" style="cursor:pointer">refresh</a></div></div>
         <div class="card metric"><div class="k">Option premium YTD</div><div class="v">${money(S.investMeta.premiumYtd, { short: true })}</div><div class="sub">covered calls + CSPs</div></div>
         <div class="card metric"><div class="k">Open option obligations</div><div class="v">${options.length}</div><div class="sub">${options.filter(({ o }) => K.daysUntil(o.expiry) <= 7).length} expiring ≤7d</div></div>
         <div class="card metric"><div class="k">Largest single name</div><div class="v">${K.pct(maxW)}</div><div class="sub">${maxP ? maxP.ticker : '—'} · limit ${K.pct(S.investMeta.targetMaxSinglePos)} (indexes excluded)</div></div>
       </div>
       ${alerts.length ? `<div class="callout warn section-gap"><b>Alerts:</b> ${[...new Set(alerts)].map(esc).join(' · ')}</div>` : ''}
       <div class="two-col section-gap">
-        <div class="card pad-0"><div style="padding:14px 16px 4px" class="card-head"><h3>Positions</h3></div>
+        <div class="card pad-0"><div style="padding:14px 16px 4px" class="card-head"><h3>Positions</h3><button class="link" onclick="KOVA.Feeds.importCSV()">⇪ Fidelity CSV</button></div>
           <div class="tablewrap" style="margin:0;padding:0 16px 10px"><table>
             <thead><tr><th>Asset</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Value</th><th class="num">P/L</th><th class="num">Weight</th></tr></thead>
             <tbody>${pos.map(p => {
@@ -678,6 +680,20 @@
     "preview": "…", "received": "ISO date", "importance": 1 }
 ]</pre></details>
           </div>
+
+          <div class="card section-gap"><div class="card-head"><h3>Financial connections</h3></div>
+            <div class="small" style="color:var(--ink-2);margin-bottom:8px">
+              <b>Live prices</b> refresh automatically on the Investments screen (free public feeds, no account).
+              <b>Fidelity</b> imports via CSV on the Investments screen — parsed entirely in your browser.
+              <b>Mercury</b> connects directly below: create a <b>read-only</b> token in Mercury → Settings → API Tokens.
+              It's stored only inside your end-to-end-encrypted app data and relayed per-request — never kept on any server.</div>
+            <label>Mercury API token (read-only)</label>
+            <input id="mrc-token" type="password" value="${esc((S.settings.finance || {}).mercuryToken || '')}" placeholder="secret-token:mercury_production_…">
+            <div class="btnrow" style="margin-top:10px">
+              <button class="btn" onclick="KOVA.Feeds.mercurySaveToken()">Save token</button>
+              ${(S.settings.finance || {}).mercuryToken ? `<button class="btn primary" onclick="KOVA.Feeds.mercuryRefresh({toast:true})">↻ Refresh balances now</button>
+              <span class="badge green">connected${(S.settings.finance || {}).lastMercuryAt ? ' · ' + K.fmtDay(new Date(S.settings.finance.lastMercuryAt).toISOString()) + ' ' + K.fmtTime(new Date(S.settings.finance.lastMercuryAt).toISOString()) : ''}</span>` : '<span class="badge gray">not connected</span>'}
+            </div></div>
 
           <div class="card section-gap"><div class="card-head"><h3>Connectors roadmap</h3></div>
             <div class="rows">${S.settings.connectors.map(c => `

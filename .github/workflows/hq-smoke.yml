@@ -1,0 +1,47 @@
+# Live smoke test for HQ — run manually after a deploy to verify the
+# production endpoints from a machine with open internet (GitHub's runner),
+# since the app's data feeds can't be probed from every environment.
+
+name: HQ smoke test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: App shell & guide
+        run: |
+          set -e
+          for p in "/" "/guide.html"; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://hq.aarondweymann.workers.dev$p")
+            echo "$p → HTTP $CODE"; [ "$CODE" = "200" ]
+          done
+
+      - name: Device sync ping
+        run: |
+          BODY=$(curl -s https://hq.aarondweymann.workers.dev/api/sync/ping)
+          echo "$BODY"; echo "$BODY" | grep -q '"enabled":true'
+
+      - name: Live quotes (Stooq + CoinGecko through the Worker)
+        run: |
+          set -e
+          BODY=$(curl -s "https://hq.aarondweymann.workers.dev/api/quotes?s=NVDA,VOO&c=bitcoin")
+          echo "$BODY"
+          echo "$BODY" | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)
+          q=d.get('quotes',{}); c=d.get('crypto',{})
+          assert isinstance(q.get('NVDA'),(int,float)) and q['NVDA']>0, 'no NVDA quote: '+json.dumps(d)
+          assert isinstance(c.get('bitcoin'),(int,float)) and c['bitcoin']>0, 'no BTC quote: '+json.dumps(d)
+          print('✓ quotes live — NVDA', q['NVDA'], '· VOO', q.get('VOO'), '· BTC', c['bitcoin'])"
+
+      - name: Mercury relay guards (no token → 400, bad token → passthrough 401)
+        run: |
+          set -e
+          C1=$(curl -s -o /dev/null -w "%{http_code}" "https://hq.aarondweymann.workers.dev/api/relay/mercury/accounts")
+          echo "no token → HTTP $C1"; [ "$C1" = "400" ]
+          C2=$(curl -s -o /dev/null -w "%{http_code}" -H "x-mercury-token: not-a-real-token-just-checking" "https://hq.aarondweymann.workers.dev/api/relay/mercury/accounts")
+          echo "bad token → HTTP $C2 (401/403 expected from Mercury)"; [ "$C2" = "401" ] || [ "$C2" = "403" ]
+          echo "✓ relay routes and guards work"

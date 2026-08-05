@@ -70,7 +70,8 @@ ol.steps>li::before{content:counter(s);position:absolute;left:0;top:0;width:28px
   <a href="#controls">5 · Global controls</a>
   <a href="#security">6 · Security & privacy model</a>
   <a href="#ai">7 · The AI machine day</a>
-  <a href="#faq">8 · Troubleshooting & FAQ</a>
+  <a href="#sources">8 · Data sources & integration map</a>
+  <a href="#faq">9 · Troubleshooting & FAQ</a>
 </div></div>
 
 <h2 id="what">1 · What HQ is (30 seconds)</h2>
@@ -104,8 +105,10 @@ Today anyone with the URL can load the app shell (they see only demo data — yo
 
 <li><b>When the AI machine arrives: bring the agents to life</b> <span class="badge you">you</span> — full steps in <a href="#ai">section 7</a>.</li>
 
-<li><b>Real market prices & brokerage import</b> <span class="badge next">next build</span><br>
-Live public price feeds, Fidelity CSV import, and the SnapTrade read-only pipe are the next builds — ask Claude to build them when you're ready. Until then, tap any position to update its price manually.</li>
+<li><b>Connect the money data</b> <span class="badge done">live</span> <span class="badge you">you</span><br>
+<b>Prices</b> refresh automatically on the Investments screen (free public feeds — nothing to set up).
+<b>Fidelity</b>: Investments → <b>⇪ Fidelity CSV</b> → drop in the Positions export; preview, map accounts, apply. Thirty seconds, entirely in your browser.
+<b>Mercury</b>: create a <b>read-only</b> API token (Mercury → Settings → API Tokens), paste it in HQ → Settings → Financial connections, map each account once — business cash then refreshes automatically. SnapTrade automation for Fidelity comes with the AI box.</li>
 </ol>
 
 <h2 id="rhythm">3 · The operating rhythm</h2>
@@ -180,7 +183,38 @@ Live public price feeds, Fidelity CSV import, and the SnapTrade read-only pipe a
 <li><b>Install Tailscale</b> on the machine and your phone — then HQ can reach your model and n8n securely from anywhere, and later you can host HQ itself there for the full self-hosted end state.</li>
 </ol>
 
-<h2 id="faq">8 · Troubleshooting & FAQ</h2>
+<h2 id="sources">8 · Data sources & integration map</h2>
+<p>Everything HQ shows traces back to one of these sources. Six credentials cover it all — each stored in your browser or on your own machine, never on a readable server.</p>
+<h3>Tier 1 — core numbers</h3>
+<table>
+<tr><th>Feeds</th><th>Source of truth</th><th>Pipe</th><th>Status</th></tr>
+<tr><td>Business cash (all 4 entities)</td><td>Mercury</td><td>Direct read-only API — no middleman</td><td>Live — paste token in Settings</td></tr>
+<tr><td>Positions, balances, options</td><td>Fidelity</td><td>CSV import now · SnapTrade OAuth later</td><td>Live (CSV)</td></tr>
+<tr><td>Market prices</td><td>Public feeds (Stooq, CoinGecko)</td><td>Worker proxy, cached — no account</td><td>Live — automatic</td></tr>
+<tr><td>Calendar & family logistics</td><td>Google Calendar</td><td>n8n on the AI machine</td><td>With the AI box</td></tr>
+<tr><td>Inbox & commitments</td><td>Gmail</td><td>n8n on the AI machine</td><td>With the AI box</td></tr>
+</table>
+<h3>Tier 2 — operating businesses</h3>
+<table>
+<tr><th>Feeds</th><th>Source of truth</th><th>Pipe</th></tr>
+<tr><td>TRIBE revenue & orders</td><td>Shopify</td><td>n8n Shopify node</td></tr>
+<tr><td>LTR occupancy, rent roll, work orders</td><td>Your PM software (Buildium/AppFolio — both have APIs)</td><td>n8n, once chosen</td></tr>
+<tr><td>STR bookings & ADR</td><td>Your STR platform (OwnerRez-type tools have APIs; Airbnb exposes iCal only)</td><td>n8n or ICS feed</td></tr>
+<tr><td>Chase / Marcus / HELOC</td><td>No consumer API exists</td><td>Quick manual updates, or SimpleFIN later</td></tr>
+</table>
+<h3>Tier 3 — life domains</h3>
+<table>
+<tr><th>Feeds</th><th>Source of truth</th><th>Pipe</th></tr>
+<tr><td>Sleep, weight, workouts, readiness</td><td>Apple Health (or Oura/Whoop directly)</td><td>"Health Auto Export" app → n8n webhook</td></tr>
+<tr><td>Document index & expirations</td><td>Google Drive</td><td>n8n + the document-filing agent</td></tr>
+<tr><td>School & club schedules</td><td>Published ICS calendar feeds</td><td>Subscribe in Google Calendar → flows with Tier 1</td></tr>
+<tr><td>Contacts</td><td>Google Contacts</td><td>n8n, optional</td></tr>
+</table>
+<h3>Needs no source — and honest gaps</h3>
+<p><b>Computed or judgment (no API can supply it):</b> net worth, the cash forecast, mortgage balances (amortization is math), goals, priorities, buy-box scores, theses, decisions, reviews.<br>
+<b>Can't be piped:</b> SMS (Apple doesn't expose it) · LoopNet/Crexi deal flow (broker <i>emails</i> are the real pipe — the sourcing agent parses those) · property valuations (quarterly manual, or a paid AVM later).</p>
+
+<h2 id="faq">9 · Troubleshooting & FAQ</h2>
 <h3>I lost my sync passphrase.</h3>
 <p>The cloud copy is unrecoverable — by design. Your data is still on any device that has it: export a backup there (Settings → Data), pick a new passphrase, enable sync fresh, import if needed.</p>
 <h3>Sync says "conflict."</h3>

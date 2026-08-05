@@ -472,14 +472,15 @@ function KOVA_SEED() {
   /* ---- settings ---------------------------------------------------------------------- */
   const settings = {
     name: 'Aaron', version: 1, privacy: false, workspace: 'all',
+    finance: { mercuryToken: '', mercuryMap: {}, lastMercuryAt: null },
     ai: { provider: 'none', baseUrl: 'http://localhost:11434', model: '', apiKey: '', connected: false, lastCheck: null, models: [] },
     n8n: { baseUrl: '', inboxPath: '/webhook/kova-inbox', enabled: false },
     connectors: [
       { id: 'gcal', name: 'Google Calendar', status: 'planned', note: 'Bridge via n8n: Calendar trigger → HQ inbox webhook' },
       { id: 'gmail', name: 'Gmail', status: 'planned', note: 'Bridge via n8n: Gmail trigger → HQ inbox webhook' },
       { id: 'drive', name: 'Google Drive', status: 'planned', note: 'Document links open in Drive; indexing via n8n' },
-      { id: 'plaid', name: 'Bank aggregation (Plaid)', status: 'planned', note: 'Requires a backend — see roadmap in README' },
-      { id: 'broker', name: 'Brokerage (read-only)', status: 'planned', note: 'Manual price refresh for now; SnapTrade/Plaid later' },
+      { id: 'plaid', name: 'Chase / Marcus (personal banks)', status: 'manual', note: 'No consumer API — quick manual updates, or SimpleFIN later if desired' },
+      { id: 'broker', name: 'Fidelity (read-only)', status: 'live', note: 'CSV import on Investments now; SnapTrade automation with the AI box' },
       { id: 'shopify', name: 'Shopify (TRIBE)', status: 'planned', note: 'n8n Shopify node → revenue + order metrics' },
       { id: 'health', name: 'Apple Health', status: 'planned', note: 'Health Auto Export app → n8n webhook' },
     ],

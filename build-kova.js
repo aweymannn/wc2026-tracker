@@ -9,7 +9,7 @@ const path = require('path');
 const OUT = 'dist-kova';
 const FILES = [
   'kova-data.js', 'kova-app.js', 'kova-views.js', 'kova-views2.js',
-  'kova-agents.js', 'kova-sync.js', 'kova-icon.svg',
+  'kova-agents.js', 'kova-sync.js', 'kova-feeds.js', 'kova-icon.svg',
 ];
 
 fs.rmSync(OUT, { recursive: true, force: true });
