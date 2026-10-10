@@ -42,6 +42,7 @@
       ];
 
       return `
+      ${K.Feeds && K.Feeds.freshnessStrip ? K.Feeds.freshnessStrip() : ''}
       <div class="card" style="background:linear-gradient(135deg,rgba(57,135,229,0.10),rgba(144,133,233,0.06));border-color:rgba(57,135,229,0.25)">
         <div class="card-head"><h3>Today's three outcomes</h3>
           <span class="muted small">${doneN}/${outcomes.length} · ~${outcomes.reduce((s, o) => s + (o.done ? 0 : o.focusMin), 0)} focus min needed</span>

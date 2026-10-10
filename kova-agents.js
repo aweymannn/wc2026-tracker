@@ -239,6 +239,8 @@
     id: 'agents', title: 'AI Agents', icon: '✦', count: () => K.pendingApprovals().length,
     render() {
       const S = K.S; const cfg = aiCfg();
+      K.after(() => { if (K.Feeds && K.Feeds.wsAuto) K.Feeds.wsAuto(); });
+      const ws = (K.Feeds && K.Feeds.wsCfg) ? K.Feeds.wsCfg() : { url: '' };
       const totalRuns = S.agents.reduce((s, a) => s + a.runs, 0);
       const totalErr = S.agents.reduce((s, a) => s + a.errors, 0);
       const savedWk = Math.round(S.agents.filter(a => a.status !== 'paused').reduce((s, a) => s + a.timeSavedMin, 0) / 60 * 10) / 10;
@@ -256,6 +258,28 @@
           <button class="btn ${cfg.connected ? '' : 'primary'}" onclick="KOVA.nav('#/settings')">${cfg.connected ? 'Gateway settings' : 'Connect local model'}</button>
         </div>
       </div>
+
+      ${ws.url ? `
+      <div class="card section-gap" style="${K.Feeds.wsOnline() ? 'border-color:rgba(144,133,233,0.4)' : 'border-color:rgba(250,178,25,0.3)'}">
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <span class="ai-dot ${K.Feeds.wsOnline() ? 'on' : ''}" style="width:10px;height:10px;${K.Feeds.wsOnline() ? 'background:#9085e9;box-shadow:0 0 8px rgba(144,133,233,0.8)' : ''}"></span>
+          <div class="grow">
+            <div style="font-weight:650">⌂ AI-OS workstation — ${K.Feeds.wsOnline() ? ws.agents.length + ' external agents reporting' : 'offline'}</div>
+            <div class="small muted">${K.Feeds.wsOnline()
+              ? 'last heartbeat ' + K.Feeds.age(ws.lastSeen) + ' ago · polled directly over your LAN/Tailscale — never through any cloud'
+              : (ws.lastError ? esc('last error: ' + ws.lastError + ' — is the box awake and CORS enabled?') : 'no heartbeat yet — HQ polls when this screen opens')}</div>
+          </div>
+          <button class="btn sm" onclick="KOVA.Feeds.wsPoll({toast:true})">↻ Poll now</button>
+          <button class="btn sm ghost" onclick="KOVA.nav('#/settings')">Bridge settings</button>
+        </div>
+        ${ws.agents.length ? `<div class="meta" style="margin-top:10px;gap:10px;flex-wrap:wrap">${ws.agents.map(a => `
+          <span class="badge ${a.status === 'error' ? 'red' : a.status === 'running' ? 'green' : a.status === 'paused' ? 'gray' : 'blue'}" title="${esc(a.purpose || '')}${a.runs != null ? ' · ' + a.runs + ' runs' : ''}${a.errors ? ' · ' + a.errors + ' err' : ''}">${esc(a.name)}${a.lastRun ? ' · ' + K.Feeds.age(a.lastRun) : ''}</span>`).join('')}</div>` : ''}
+      </div>` : `
+      <div class="card section-gap"><div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <span class="ai-dot"></span><div class="grow">
+          <div style="font-weight:650">⌂ Monitor your AI-OS workstation's agents here too</div>
+          <div class="small muted">Point HQ at a status endpoint on the box (one JSON URL — contract in Settings) and external agents join this control center.</div></div>
+        <button class="btn sm" onclick="KOVA.nav('#/settings')">Set up bridge</button></div></div>`}
 
       <div class="grid cols-4 section-gap">
         <div class="card metric"><div class="k">Lifetime runs</div><div class="v">${totalRuns}</div><div class="sub">${totalErr} errors · ${(totalRuns ? (100 - totalErr / totalRuns * 100).toFixed(1) : '—')}% success</div></div>
@@ -291,15 +315,16 @@
         <div class="card-head" style="padding:14px 16px 4px"><h3>Run log</h3><span class="muted small">every agent action is recorded (§24.4)</span></div>
         <div class="tablewrap" style="margin:0;padding:0 16px 12px"><table>
           <thead><tr><th>When</th><th>Agent</th><th>Mode</th><th>Status</th><th>Summary</th></tr></thead>
-          <tbody>${S.agentRuns.slice(0, 14).map(r => {
-            const ag = S.agents.find(a => a.id === r.agentId) || {};
-            return `<tr class="clickable" onclick="KOVA.Agents.showRun('${r.id}')">
+          <tbody>${[].concat(
+            S.agentRuns.slice(0, 16).map(r => ({ at: r.at, id: r.id, name: (S.agents.find(a => a.id === r.agentId) || {}).name || r.agentId, mode: r.mode, status: r.status, summary: r.summary })),
+            (ws.runs || []).slice(0, 16).map(r => ({ at: r.at, name: r.agent, mode: 'ws', status: r.status, summary: r.summary + (r.durationMs != null ? ' (' + K.Feeds.fmtDur(r.durationMs) + ')' : '') }))
+          ).sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, 16).map(r => `
+            <tr ${r.id ? `class="clickable" onclick="KOVA.Agents.showRun('${r.id}')"` : ''}>
               <td class="nowrap num">${K.fmtDay(r.at)} ${K.fmtTime(r.at)}</td>
-              <td>${esc(ag.name || r.agentId)}</td>
-              <td>${r.mode === 'live' ? '<span class="badge blue">✦ local</span>' : '<span class="badge gray">sim</span>'}</td>
-              <td>${r.status === 'ok' ? '<span class="badge green">ok</span>' : r.status === 'error' ? '<span class="badge red">error</span>' : '<span class="badge amber">' + r.status + '</span>'}</td>
-              <td style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.summary)}</td></tr>`;
-          }).join('')}</tbody></table></div>
+              <td>${esc(r.name)}</td>
+              <td>${r.mode === 'live' ? '<span class="badge blue">✦ local</span>' : r.mode === 'ws' ? '<span class="badge" style="background:rgba(144,133,233,0.16);color:#c9c3f5">⌂ workstation</span>' : '<span class="badge gray">sim</span>'}</td>
+              <td>${r.status === 'ok' ? '<span class="badge green">ok</span>' : r.status === 'error' ? '<span class="badge red">error</span>' : '<span class="badge amber">' + esc(r.status) + '</span>'}</td>
+              <td style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.summary)}">${esc(r.summary)}</td></tr>`).join('')}</tbody></table></div>
       </div>`;
     },
   });
