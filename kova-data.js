@@ -473,6 +473,7 @@ function KOVA_SEED() {
   const settings = {
     name: 'Aaron', version: 1, privacy: false, workspace: 'all',
     finance: { mercuryToken: '', mercuryMap: {}, lastMercuryAt: null },
+    workstation: { url: '', agents: [], runs: [], lastSeen: null, lastPoll: null, lastError: null },
     ai: { provider: 'none', baseUrl: 'http://localhost:11434', model: '', apiKey: '', connected: false, lastCheck: null, models: [] },
     n8n: { baseUrl: '', inboxPath: '/webhook/kova-inbox', enabled: false },
     connectors: [

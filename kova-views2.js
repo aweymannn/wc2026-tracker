@@ -681,6 +681,27 @@
 ]</pre></details>
           </div>
 
+          <div class="card section-gap"><div class="card-head"><h3>AI-OS workstation bridge</h3></div>
+            <div class="small" style="color:var(--ink-2);margin-bottom:8px">Monitor the agents running on your AI machine from the Agents screen. HQ polls one read-only JSON endpoint on the box <b>directly over your LAN/Tailscale</b> — no cloud in the path. Serve it from n8n (a webhook returning status) or any tiny HTTP server, with CORS enabled (same rule as Ollama).</div>
+            <label>Workstation status URL</label>
+            <input id="ws-url" value="${esc((S.settings.workstation || {}).url || '')}" placeholder="http://ai-box.local:5678/webhook/hq-agents">
+            <div class="btnrow" style="margin-top:10px">
+              <button class="btn" onclick="KOVA.Feeds.wsSave()">Save & test</button>
+              ${(S.settings.workstation || {}).url ? (K.Feeds.wsOnline() ? '<span class="badge green">online · ' + (S.settings.workstation.agents || []).length + ' agents</span>' : '<span class="badge amber">configured · no heartbeat</span>') : '<span class="badge gray">not connected</span>'}
+            </div>
+            <details style="margin-top:10px"><summary class="small muted" style="cursor:pointer">Endpoint contract (give this to the workstation side)</summary>
+              <pre style="background:#111110;border:1px solid var(--hairline-soft);border-radius:8px;padding:10px;font-size:11.5px;overflow-x:auto;color:var(--ink-2)">GET → 200 application/json, header: Access-Control-Allow-Origin: *
+{
+  "agents": [{ "id": "researcher", "name": "Research agent",
+               "status": "idle|running|error|paused",
+               "purpose": "...", "schedule": "hourly",
+               "lastRun": "2026-10-10T09:00:00Z",
+               "runs": 123, "errors": 2 }],
+  "runs":   [{ "agent": "Research agent", "at": "2026-10-10T09:00:00Z",
+               "status": "ok|error|running", "summary": "...",
+               "durationMs": 42000 }]
+}</pre></details></div>
+
           <div class="card section-gap"><div class="card-head"><h3>Financial connections</h3></div>
             <div class="small" style="color:var(--ink-2);margin-bottom:8px">
               <b>Live prices</b> refresh automatically on the Investments screen (free public feeds, no account).

@@ -285,3 +285,119 @@
     F.mercuryRefresh({});
   };
 })();
+
+/* ============================================================================
+   Workstation bridge — monitor external agents running on the AI-OS machine
+   ----------------------------------------------------------------------------
+   The box exposes one read-only JSON endpoint (n8n webhook, or any tiny HTTP
+   server) and HQ polls it directly from the browser over LAN/Tailscale —
+   nothing is stored in any cloud. Contract (all fields optional but `name`):
+
+     GET <url>  →  {
+       "agents": [{ "id", "name", "status": "idle|running|error|paused",
+                    "purpose", "schedule", "lastRun": ISO, "runs": n, "errors": n }],
+       "runs":   [{ "agent", "at": ISO, "status": "ok|error|running",
+                    "summary", "durationMs": n }]
+     }
+
+   Serve it with CORS (Access-Control-Allow-Origin: *) — same rule as Ollama.
+   ========================================================================== */
+(() => {
+  const K = KOVA;
+  const F = K.Feeds;
+  const esc = K.esc;
+
+  function wsCfg() {
+    const s = K.S.settings;
+    if (!s.workstation) s.workstation = { url: '', agents: [], runs: [], lastSeen: null, lastPoll: null, lastError: null };
+    return s.workstation;
+  }
+  F.wsCfg = wsCfg;
+
+  const str = (v, max) => typeof v === 'string' ? v.slice(0, max || 200) : '';
+  const num = (v) => (typeof v === 'number' && isFinite(v)) ? v : null;
+  const WS_STATUS = { idle: 'blue', running: 'green', ok: 'green', error: 'red', paused: 'gray' };
+
+  F.wsSave = () => {
+    const cfg = wsCfg();
+    const el = K.$('#ws-url');
+    cfg.url = el ? el.value.trim() : cfg.url;
+    if (!cfg.url) { cfg.agents = []; cfg.runs = []; cfg.lastSeen = null; cfg.lastError = null; }
+    K.refresh();
+    if (cfg.url) F.wsPoll({ toast: true });
+    else K.toast('Workstation bridge cleared');
+  };
+
+  let wsBusy = false;
+  F.wsPoll = async (opts) => {
+    const cfg = wsCfg();
+    if (!cfg.url || wsBusy) return;
+    wsBusy = true;
+    cfg.lastPoll = Date.now();
+    try {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), 7000);
+      const res = await fetch(cfg.url, { cache: 'no-store', signal: ctl.signal });
+      clearTimeout(t);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      cfg.agents = (Array.isArray(data.agents) ? data.agents : []).slice(0, 24).map(a => ({
+        id: str(a.id || a.name, 60), name: str(a.name, 80) || 'agent',
+        status: WS_STATUS[a.status] ? a.status : 'idle',
+        purpose: str(a.purpose, 160), schedule: str(a.schedule, 40),
+        lastRun: str(a.lastRun, 40), runs: num(a.runs), errors: num(a.errors),
+      }));
+      const incoming = (Array.isArray(data.runs) ? data.runs : []).slice(0, 40).map(r => ({
+        agent: str(r.agent, 80) || 'agent', at: str(r.at, 40),
+        status: WS_STATUS[r.status] ? r.status : 'ok',
+        summary: str(r.summary, 300), durationMs: num(r.durationMs),
+      })).filter(r => r.at);
+      const seen = new Set(incoming.map(r => r.agent + '|' + r.at));
+      cfg.runs = incoming.concat((cfg.runs || []).filter(r => !seen.has(r.agent + '|' + r.at)))
+        .sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, 60);
+      cfg.lastSeen = Date.now(); cfg.lastError = null;
+      K.refresh();
+      if (opts && opts.toast) K.toast('Workstation online — ' + cfg.agents.length + ' agents reporting ✓');
+    } catch (e) {
+      cfg.lastError = e.name === 'AbortError' ? 'timeout' : e.message;
+      K.refresh();
+      if (opts && opts.toast) K.toast('⚠ Workstation unreachable: ' + cfg.lastError + ' (LAN/Tailscale + CORS?)');
+    }
+    wsBusy = false;
+  };
+  // silent re-poll when the Agents screen opens and the last attempt is >5 min old
+  F.wsAuto = () => {
+    const cfg = wsCfg();
+    if (!cfg.url) return;
+    if (cfg.lastPoll && Date.now() - cfg.lastPoll < 5 * 60 * 1000) return;
+    F.wsPoll({});
+  };
+  F.wsOnline = () => { const c = wsCfg(); return !!(c.url && c.lastSeen && !c.lastError && Date.now() - c.lastSeen < 15 * 60 * 1000); };
+
+  F.fmtDur = (ms) => ms == null ? '' : ms >= 60000 ? (ms / 60000).toFixed(1) + 'm' : Math.max(1, Math.round(ms / 1000)) + 's';
+  F.age = (ts) => {
+    if (!ts) return '—';
+    const m = Math.round((Date.now() - (typeof ts === 'number' ? ts : new Date(ts).getTime())) / 60000);
+    if (m < 2) return 'now'; if (m < 60) return m + 'm'; if (m < 36 * 60) return Math.round(m / 60) + 'h';
+    return Math.round(m / 1440) + 'd';
+  };
+
+  /* ---- Command Center data-freshness strip -------------------------------- */
+  F.freshnessStrip = () => {
+    const S = K.S;
+    const fin = S.settings.finance || {};
+    const ws = wsCfg();
+    const dot = (on, warn) => `<span class="ai-dot ${on ? 'on' : ''}" ${warn ? 'style="background:var(--warn)"' : ''}></span>`;
+    const pills = [];
+    const pricesAge = S.investMeta.pricesAsOf ? Date.now() - new Date(S.investMeta.pricesAsOf).getTime() : null;
+    pills.push({ nav: '#/investments', label: 'Prices', dot: dot(pricesAge != null && pricesAge < 30 * 60000, pricesAge != null && pricesAge >= 30 * 60000 && pricesAge < 48 * 3600000), sub: F.age(S.investMeta.pricesAsOf) });
+    if (fin.mercuryToken) pills.push({ nav: '#/finance', label: 'Mercury', dot: dot(fin.lastMercuryAt && Date.now() - fin.lastMercuryAt < 2 * 3600000), sub: F.age(fin.lastMercuryAt) });
+    pills.push({ nav: '#/settings', label: 'Sync', dot: dot(K.Sync && K.Sync.enabled()), sub: K.Sync && K.Sync.enabled() ? 'encrypted' : 'off' });
+    pills.push({ nav: '#/agents', label: 'AI gateway', dot: dot(S.settings.ai.connected), sub: S.settings.ai.connected ? esc(S.settings.ai.model || 'on') : 'simulated' });
+    if (ws.url) pills.push({ nav: '#/agents', label: 'Workstation', dot: dot(F.wsOnline()), sub: F.wsOnline() ? (ws.agents.length + ' agents') : 'offline' });
+    return `<div class="card" style="padding:9px 16px;margin-bottom:14px"><div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+      <span class="small muted" style="letter-spacing:0.05em;text-transform:uppercase;font-size:10.5px">Data</span>
+      ${pills.map(p => `<span class="small" style="display:inline-flex;gap:7px;align-items:center;cursor:pointer" onclick="KOVA.nav('${p.nav}')">${p.dot}${p.label} <span class="muted">${p.sub}</span></span>`).join('')}
+    </div></div>`;
+  };
+})();

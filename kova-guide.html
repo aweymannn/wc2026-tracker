@@ -181,6 +181,7 @@ Today anyone with the URL can load the app shell (they see only demo data — yo
 <li><b>Install n8n</b> for real communications (Gmail, Calendar, Shopify, Apple Health):<pre>docker run -d --name n8n -p 5678:5678 \
   -v n8n_data:/home/node/.n8n n8nio/n8n</pre>Authorize each account once inside n8n's UI, then set the bridge URL in HQ → Settings → n8n bridge. Ask Claude for the ready-made workflow templates when you get here.</li>
 <li><b>Install Tailscale</b> on the machine and your phone — then HQ can reach your model and n8n securely from anywhere, and later you can host HQ itself there for the full self-hosted end state.</li>
+<li><b>Monitor the box's own agents in HQ</b> — your workstation's agents (n8n flows, custom scripts) can report into the Agents screen. Expose one read-only JSON status endpoint on the box (the exact contract is in HQ → Settings → <b>AI-OS workstation bridge</b>, ready to hand to whatever builds that side), serve it with CORS, and paste its URL into that Settings card. HQ polls it directly over LAN/Tailscale — heartbeat, per-agent status, and external runs merge into the run log, with nothing stored in any cloud.</li>
 </ol>
 
 <h2 id="sources">8 · Data sources & integration map</h2>
